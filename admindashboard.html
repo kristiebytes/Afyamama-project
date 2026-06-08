@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AfyaMama Admin Dashboard</title>
+
+<style>
+
+:root{
+    --primary:#a16207;
+    --secondary:#d97706;
+    --sidebar:#78350f;
+    --bg:#fffbeb;
+    --white:#ffffff;
+    --text:#451a03;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    display:flex;
+    background:var(--bg);
+}
+
+/* Sidebar */
+
+.sidebar{
+    width:250px;
+    height:100vh;
+    background:var(--sidebar);
+    color:white;
+    padding:20px;
+}
+
+.logo{
+    text-align:center;
+    margin-bottom:40px;
+}
+
+.logo h2{
+    color:#f59e0b;
+}
+
+.sidebar ul{
+    list-style:none;
+}
+
+.sidebar li{
+    padding:15px;
+    margin-bottom:10px;
+    cursor:pointer;
+    border-radius:8px;
+    transition:0.3s;
+}
+
+.sidebar li:hover{
+    background:var(--primary);
+}
+
+.active{
+    background:var(--primary);
+}
+
+/* Main Content */
+
+.main-content{
+    flex:1;
+    padding:40px;
+}
+
+.main-content h2{
+    color:var(--text);
+    margin-bottom:30px;
+}
+
+/* Cards */
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+}
+
+.card{
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+.card h3{
+    color:var(--primary);
+    margin-bottom:10px;
+}
+
+.card p{
+    font-size:32px;
+    font-weight:bold;
+    color:var(--text);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+```
+<div class="logo">
+    <h2>AfyaMama Admin</h2>
+</div>
+
+<ul>
+    <li class="active">Dashboard</li>
+    <li>Users</li>
+    <li>Reports</li>
+    <li> <a href="adminnotification.html">Notifications</a></li>
+    <li>Profile</li>
+    <li id="logoutBtn">Logout</li>
+</ul>
+```
+
+</div>
+
+<div class="main-content">
+
+```
+<h2>Welcome Admin</h2>
+
+<div class="cards">
+
+    <div class="card">
+        <h3>Total Mothers</h3>
+        <p id="motherCount">0</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Doctors</h3>
+        <p id="doctorCount">0</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Children</h3>
+        <p id="childrenCount">0</p>
+    </div>
+
+    <div class="card">
+        <h3>ANC Visits</h3>
+        <p id="ancCount">0</p>
+    </div>
+
+    <div class="card">
+        <h3>Vaccines Given</h3>
+        <p id="vaccineCount">0</p>
+    </div>
+
+    <div class="card">
+        <h3>PNC Visits</h3>
+        <p id="pncCount">0</p>
+    </div>
+
+</div>
+```
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+
+import {
+    getFirestore,
+    collection,
+    getDocs,
+    query,
+    where
+}
+from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+const firebaseConfig = {
+
+    apiKey: "YOUR_API_KEY",
+    projectId: "afyamama-5cbaf"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function loadDashboard(){
+
+    try{
+
+        const mothers = await getDocs(
+            query(
+                collection(db,"Users"),
+                where("role","==","mother")
+            )
+        );
+
+        document.getElementById("motherCount").innerText =
+        mothers.size;
+
+        const doctors = await getDocs(
+            query(
+                collection(db,"Users"),
+                where("role","==","doctor")
+            )
+        );
+
+        document.getElementById("doctorCount").innerText =
+        doctors.size;
+
+        const children =
+        await getDocs(collection(db,"Children"));
+
+        document.getElementById("childrenCount").innerText =
+        children.size;
+
+        const anc =
+        await getDocs(collection(db,"ANC_Visits"));
+
+        document.getElementById("ancCount").innerText =
+        anc.size;
+
+        const vaccines =
+        await getDocs(collection(db,"Immunizations"));
+
+        document.getElementById("vaccineCount").innerText =
+        vaccines.size;
+
+        const pnc =
+        await getDocs(collection(db,"PNC_Visits"));
+
+        document.getElementById("pncCount").innerText =
+        pnc.size;
+
+    }
+    catch(error){
+
+        console.error(error);
+
+    }
+}
+
+loadDashboard();
+
+document
+.getElementById("logoutBtn")
+.addEventListener("click",()=>{
+
+    localStorage.clear();
+
+    window.location.href =
+    "admin-login.html";
+
+});
+
+</script>
+
+</body>
+</html>
