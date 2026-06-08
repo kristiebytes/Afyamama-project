@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Wellness Notification</title>
+    <link rel="stylesheet" href="adminnotification.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="logo">
+        <h2>Admin Panel</h2>
+    </div>
+
+    <ul>
+        <li><a href="admindashboard.html">Dashboard</a></li>
+        <li><a href="users.html">Users</a></li>
+        <li><a href="reports.html">Reports</a></li>
+        <li class="active"><a href="adminnotification.html">Create Notification</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="logout.html">Logout</a></li>
+    </ul>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+    <h1>Create Wellness Notification</h1>
+
+    <!-- CREATE FORM SECTION -->
+    <div class="section">
+
+        <h2>Notification Form</h2>
+
+        <div class="card">
+
+            <label>Notification Type</label>
+            <select id="category">
+                <option value="Prenatal">Prenatal Wellness</option>
+                <option value="Postnatal">Postnatal Wellness</option>
+            </select>
+
+            <label>Title</label>
+            <input type="text" id="title" placeholder="Enter title">
+
+            <label>Wellness Message</label>
+            <textarea id="message" rows="6" placeholder="Write wellness tip..."></textarea>
+
+            <div class="btn-group">
+                <button onclick="saveNotification()">Save Notification</button>
+                <button onclick="sendNotification()">Send Notification</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- HISTORY SECTION -->
+    <div class="section">
+
+        <h2>Previously Created Notifications</h2>
+
+        <div id="notificationList"></div>
+
+    </div>
+
+</div>
+
+<script src="adminnotification.js"></script>
+</body>
+</html>
