@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>System Reports - AfyaMama</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary-purple: #55075c; --sidebar-bg: #55075c; --active-pink: #c9227a; --bg-light: #f5f6f8; --white: #ffffff; --text-heading: #55075c; --text-muted: #736275; --text-dark: #201021; }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { display: flex; background: var(--bg-light); color: var(--text-dark); min-height: 100vh; }
+
+        /* Sidebar - Uniform Dashboard Style */
+        .sidebar { width: 260px; height: 100vh; background: var(--sidebar-bg); color: white; padding: 24px 16px; position: fixed; box-shadow: 4px 0 10px rgba(0,0,0,0.05); }
+        .logo { text-align: center; margin-bottom: 30px; font-weight: 600; font-size: 1.25rem; }
+        .sidebar ul { list-style: none; display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+        .sidebar li { padding: 12px 16px; cursor: pointer; border-radius: 8px; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+        .sidebar li a { color: rgba(255, 255, 255, 0.85); text-decoration: none; width: 100%; }
+        .sidebar li.active { background: var(--active-pink); }
+        .sidebar li.active a { color: white; }
+        .sidebar li::before { font-family: "Font Awesome 6 Free"; font-weight: 900; width: 24px; }
+        .sidebar li:nth-child(1)::before { content: "\f200"; }
+        .sidebar li:nth-child(2)::before { content: "\f500"; }
+        .sidebar li:nth-child(3)::before { content: "\f56d"; }
+        .sidebar li:nth-child(4)::before { content: "\f0f3"; }
+        .sidebar li:nth-child(5)::before { content: "\f007"; }
+        #logoutBtn { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); border-radius: 0; }
+        #logoutBtn::before { content: "\f2f5"; }
+
+        /* Main Content - Aligned with Profile */
+        .main-content { flex: 1; padding: 40px; margin-left: 260px; }
+        .page-container { max-width: 800px; margin: auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 4px 15px rgba(85, 7, 92, 0.05); }
+        h1 { color: var(--text-heading); margin-bottom: 30px; }
+
+        /* Report Grid & Elements */
+        .report-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .report-card { background: #faf8fb; padding: 25px; border-radius: 15px; border-left: 5px solid var(--primary-purple); cursor: pointer; transition: 0.3s; border: 1px solid #ebd6ed; }
+        .report-card:hover { background: #f0e6f2; transform: translateY(-5px); border-color: var(--active-pink); }
+        
+        #details { display: none; }
+        .report-list { list-style: none; padding: 0; margin-top: 20px; }
+        .report-list li { padding: 15px; border-bottom: 1px solid #ebd6ed; font-size: 1.1rem; color: #4a3a4d; }
+        
+        .btn-back { background: #736275; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 10px; }
+        .btn-download { background: var(--primary-purple); color: white; padding: 14px 30px; border: none; border-radius: 25px; cursor: pointer; margin-top: 30px; font-weight: bold; width: 100%; }
+        .btn-download:hover { background: #43034a; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">AfyaMama Admin</div>
+        <ul>
+            <li><a href="admindashboard.html">Dashboard</a></li>
+            <li><a href="adminusers.html">Users</a></li>
+            <li class="active"><a href="adminreport.html">Reports</a></li>
+            <li><a href="adminnotification.html">Notifications</a></li>
+            <li><a href="adminprofile.html">Profile</a></li>
+            <li id="logoutBtn"><a href="logout.html">Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="page-container">
+            <div id="grid">
+                <h1>System Reports</h1>
+                <div class="report-grid">
+                    <div class="report-card" onclick="showDetail('Maternal Health', ['Total mothers registered', 'Active pregnancies', 'ANC attendance'])"><h3>📄 Maternal Health</h3></div>
+                    <div class="report-card" onclick="showDetail('Child Health', ['Total children registered', 'Growth monitoring'])"><h3>📄 Child Health</h3></div>
+                    <div class="report-card" onclick="showDetail('Immunization', ['Vaccines administered', 'Upcoming schedule'])"><h3>📄 Immunization</h3></div>
+                    <div class="report-card" onclick="showDetail('Appointments', ['Total ANC visits', 'Total PNC visits'])"><h3>📄 Appointments</h3></div>
+                </div>
+            </div>
+
+            <div id="details">
+                <button class="btn-back" onclick="back()">← Back</button>
+                <h2 id="report-title" style="color: var(--primary-purple); margin-top: 15px;">Report Detail</h2>
+                <ul id="report-items" class="report-list"></ul>
+                <button class="btn-download" onclick="alert('Downloading PDF...')">Download Full PDF Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showDetail(title, items) {
+            document.getElementById('grid').style.display = 'none';
+            document.getElementById('details').style.display = 'block';
+            document.getElementById('report-title').innerText = title + " Report";
+            document.getElementById('report-items').innerHTML = items.map(item => `<li>✅ ${item}</li>`).join('');
+        }
+        function back() {
+            document.getElementById('grid').style.display = 'block';
+            document.getElementById('details').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
