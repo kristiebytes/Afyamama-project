@@ -1,230 +1,144 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AfyaMama Admin Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AfyaMama Admin Login</title>
 
-<style>
-:root{
-    --primary:#a16207;
-    --secondary:#d97706;
-    --bg-page:#fffbeb;
-    --sidebar:#78350f;
-    --accent:#f59e0b;
-    --white:#ffffff;
-    --text-dark:#451a03;
-}
+    <style>
+        :root { 
+            --primary-purple: #55075c; 
+            --sidebar-bg: #55075c; 
+            --active-pink: #c9227a; 
+            --bg-light: #f5f6f8; 
+            --white: #ffffff; 
+            --text-heading: #55075c; 
+            --text-muted: #736275; 
+            --text-dark: #201021; 
+        }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Segoe UI',sans-serif;
-}
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
 
-body{
-    background:var(--bg-page);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
+        body { 
+            background: var(--bg-light); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+        }
 
-.login-container{
-    width:400px;
-    background:var(--white);
-    padding:40px;
-    border-radius:15px;
-    box-shadow:0 4px 15px rgba(0,0,0,0.1);
-}
+        .login-container {
+            width: 400px;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(85, 7, 92, 0.1);
+        }
 
-.logo{
-    text-align:center;
-    margin-bottom:20px;
-}
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo h1 { color: var(--text-heading); font-size: 2rem; }
+        .logo p { color: var(--text-muted); margin-top: 5px; }
 
-.logo h1{
-    color:var(--primary);
-}
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple); }
+        .input-group input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ebd6ed; 
+            border-radius: 10px; 
+            background-color: #faf8fb; 
+        }
+        .input-group input:focus { border-color: var(--active-pink); outline: none; }
 
-.logo p{
-    color:var(--text-dark);
-}
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-purple);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .login-btn:hover { background: #43034a; }
 
-.input-group{
-    margin-bottom:20px;
-}
-
-.input-group label{
-    display:block;
-    margin-bottom:5px;
-    font-weight:bold;
-    color:var(--text-dark);
-}
-
-.input-group input{
-    width:100%;
-    padding:12px;
-    border:1px solid #ccc;
-    border-radius:8px;
-}
-
-.login-btn{
-    width:100%;
-    padding:12px;
-    background:var(--primary);
-    color:white;
-    border:none;
-    border-radius:8px;
-    font-size:16px;
-    cursor:pointer;
-    transition:0.3s;
-}
-
-.login-btn:hover{
-    background:var(--secondary);
-}
-
-#error-message{
-    margin-top:15px;
-    text-align:center;
-    color:red;
-    font-weight:bold;
-}
-
-.loading{
-    text-align:center;
-    margin-top:10px;
-    color:var(--primary);
-}
-</style>
-
+        #error-message { margin-top: 15px; text-align: center; color: var(--active-pink); font-weight: 600; }
+        .loading { text-align: center; margin-top: 10px; color: var(--text-muted); }
+    </style>
 </head>
 <body>
 
-<div class="login-container">
+    <div class="login-container">
+        <div class="logo">
+            <h1>AfyaMama</h1>
+            <p>Administrator Login</p>
+        </div>
 
-```
-<div class="logo">
-    <h1>AfyaMama</h1>
-    <p>Administrator Login</p>
-</div>
+        <div class="input-group">
+            <label>Email / Username</label>
+            <input type="text" id="username" placeholder="Enter email or username">
+        </div>
 
-<div class="input-group">
-    <label>Email / Username</label>
-    <input type="text" id="username" placeholder="Enter email or username">
-</div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter password">
+        </div>
 
-<div class="input-group">
-    <label>Password</label>
-    <input type="password" id="password" placeholder="Enter password">
-</div>
+        <button class="login-btn" onclick="adminLogin()">Login</button>
 
-<button class="login-btn" onclick="adminLogin()">
-    Login
-</button>
+        <div class="loading" id="loading"></div>
+        <div id="error-message"></div>
+    </div>
 
-<div class="loading" id="loading"></div>
-<div id="error-message"></div>
-```
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-</div>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDdkxqgxqInhIG-L0v7H_LJeqjAEap4B1s",
+            projectId: "afyamama-5cbaf"
+        };
 
-<script type="module">
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        window.adminLogin = async function(){
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const error = document.getElementById("error-message");
+            const loading = document.getElementById("loading");
 
-import {
-    getFirestore,
-    collection,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDdkxqgxqInhIG-L0v7H_LJeqjAEap4B1s",
-    projectId: "afyamama-5cbaf"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-window.adminLogin = async function(){
-
-    const username =
-    document.getElementById("username").value.trim();
-
-    const password =
-    document.getElementById("password").value.trim();
-
-    const error =
-    document.getElementById("error-message");
-
-    const loading =
-    document.getElementById("loading");
-
-    error.innerHTML = "";
-
-    if(username === "" || password === ""){
-        error.innerHTML =
-        "Please enter username and password.";
-        return;
-    }
-
-    loading.innerHTML = "Checking credentials...";
-
-    try{
-
-        const snapshot =
-        await getDocs(collection(db,"Admins"));
-
-        let found = false;
-
-        snapshot.forEach(doc => {
-
-            const admin = doc.data();
-
-            if(
-                (admin.username === username ||
-                 admin.email === username)
-                 &&
-                 admin.password === password
-            ){
-
-                found = true;
-
-                localStorage.setItem(
-                    "adminName",
-                    admin.username
-                );
-
-                window.location.href =
-                "admindashboard.html";
+            error.innerHTML = "";
+            if(username === "" || password === ""){
+                error.innerHTML = "Please enter username and password.";
+                return;
             }
 
-        });
+            loading.innerHTML = "Checking credentials...";
 
-        loading.innerHTML = "";
+            try{
+                const snapshot = await getDocs(collection(db,"Admins"));
+                let found = false;
+                snapshot.forEach(doc => {
+                    const admin = doc.data();
+                    if((admin.username === username || admin.email === username) && admin.password === password){
+                        found = true;
+                        localStorage.setItem("adminName", admin.username);
+                        window.location.href = "admindashboard.html";
+                    }
+                });
 
-        if(!found){
-            error.innerHTML =
-            "Invalid username/email or password.";
-        }
-
-    }
-    catch(err){
-
-        loading.innerHTML = "";
-
-        error.innerHTML =
-        "Login failed. Please try again.";
-
-        console.error(err);
-    }
-};
-
-</script>
-
+                loading.innerHTML = "";
+                if(!found){ error.innerHTML = "Invalid username/email or password."; }
+            }
+            catch(err){
+                loading.innerHTML = "";
+                error.innerHTML = "Login failed. Please try again.";
+                console.error(err);
+            }
+        };
+    </script>
 </body>
 </html>

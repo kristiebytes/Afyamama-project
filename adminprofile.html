@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Profile - AfyaMama</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary-purple: #55075c; --sidebar-bg: #55075c; --active-pink: #c9227a; --bg-light: #f5f6f8; --white: #ffffff; --text-heading: #55075c; --text-muted: #736275; --text-dark: #201021; }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { display: flex; background: var(--bg-light); color: var(--text-dark); min-height: 100vh; }
+
+        /* Sidebar - Uniform Dashboard Style */
+        .sidebar { width: 260px; height: 100vh; background: var(--sidebar-bg); color: white; padding: 24px 16px; position: fixed; box-shadow: 4px 0 10px rgba(0,0,0,0.05); }
+        .logo { text-align: center; margin-bottom: 30px; font-weight: 600; font-size: 1.25rem; }
+        .sidebar ul { list-style: none; display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+        .sidebar li { padding: 12px 16px; cursor: pointer; border-radius: 8px; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+        .sidebar li a { color: rgba(255, 255, 255, 0.85); text-decoration: none; width: 100%; }
+        .sidebar li.active { background: var(--active-pink); }
+        .sidebar li::before { font-family: "Font Awesome 6 Free"; font-weight: 900; width: 24px; }
+        .sidebar li:nth-child(1)::before { content: "\f200"; }
+        .sidebar li:nth-child(2)::before { content: "\f500"; }
+        .sidebar li:nth-child(3)::before { content: "\f56d"; }
+        .sidebar li:nth-child(4)::before { content: "\f0f3"; }
+        .sidebar li:nth-child(5)::before { content: "\f007"; }
+        #logoutBtn { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); border-radius: 0; }
+        #logoutBtn::before { content: "\f2f5"; }
+
+        /* Content Area */
+        .main-content { flex: 1; padding: 40px; margin-left: 260px; }
+        .page-container { max-width: 600px; margin: auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 4px 15px rgba(85, 7, 92, 0.05); }
+        
+        .avatar-wrapper { position: relative; width: 120px; margin: 0 auto 30px; }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; background: #ebd6ed; display: flex; align-items: center; justify-content: center; font-size: 50px; }
+        .edit-icon { position: absolute; bottom: 5px; right: 5px; background: var(--active-pink); color: white; padding: 8px 12px; border-radius: 50%; cursor: pointer; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        label { display: block; font-weight: 600; margin-top: 15px; color: var(--primary-purple); }
+        input, select { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ebd6ed; border-radius: 10px; background-color: #faf8fb; }
+        input:focus, select:focus { border-color: var(--active-pink); outline: none; }
+        
+        button { margin-top: 30px; width: 100%; padding: 14px; background: var(--primary-purple); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #43034a; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">AfyaMama Admin</div>
+        <ul>
+            <li><a href="admindashboard.html">Dashboard</a></li>
+            <li><a href="adminusers.html">Users</a></li>
+            <li><a href="adminreport.html">Reports</a></li>
+            <li><a href="adminnotification.html">Notifications</a></li>
+            <li class="active"><a href="adminprofile.html">Profile</a></li>
+            <li><a href="logout.html">Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="page-container">
+            <div class="avatar-wrapper">
+                <div class="avatar">👤</div>
+                <div class="edit-icon">✎</div>
+            </div>
+
+            <form id="profileForm">
+                <div class="form-grid">
+                    <div><label>First Name *</label><input type="text" value="Leslie" disabled></div>
+                    <div><label>Last Name *</label><input type="text" value="Cooper" disabled></div>
+                </div>
+                <label>Email *</label><input type="email" value="example@gmail.com" disabled>
+                <label>Phone *</label><input type="text" value="+0123-456-789" disabled>
+                <label>Gender *</label>
+                <select disabled>
+                    <option>Female</option>
+                    <option>Male</option>
+                </select>
+                <button type="button" id="btn" onclick="toggle()">Update Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggle() {
+            const inputs = document.querySelectorAll('input, select');
+            const btn = document.getElementById('btn');
+            const isEditing = !inputs[0].disabled;
+            inputs.forEach(i => i.disabled = isEditing);
+            btn.innerText = isEditing ? "Update Changes" : "Save Changes";
+        }
+    </script>
+</body>
+</html>

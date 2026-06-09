@@ -217,6 +217,16 @@ body {
 @media (max-width: 992px) {
     .cards { grid-template-columns: 1fr; }
 }
+
+/* Remove default link styling */
+.sidebar a {
+    text-decoration: none;
+    color: inherit; /* This makes the link take the color of the parent li */
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
 </style>
 
 </head>
@@ -231,14 +241,13 @@ body {
 </div>
 
 <ul>
-    <li class="active">Dashboard</li>
-    <li>Users</li>
-    <li>Reports</li>
-    <li><a href="adminnotification.html" style="color:white; text-decoration:none;">Notifications</a></li>
-    <li>Profile</li>
-    <li id="logoutBtn">Logout</li>
+    <li><a href="admindashboard.html" class="active">Dashboard</a></li>
+    <li><a href="adminusers.html">Users</a></li>
+    <li><a href="adminreport.html">Reports</a></li>
+    <li><a href="adminnotification.html">Notifications</a></li>
+    <li><a href="adminprofile.html">Profile</a></li>
+    <li id="logoutBtn"><a href="logout.html">Logout</a></li>
 </ul>
-
 
 </div>
 
@@ -299,7 +308,7 @@ from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
 const firebaseConfig = {
 
-    apiKey: "YOUR_API_KEY",
+    apiKey: "AIzaSyDdkxqgxqInhIG-L0v7H_LJeqjAEap4B1s",
     projectId: "afyamama-5cbaf"
 
 };
