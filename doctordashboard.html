@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard</title>
+
+    <link rel="stylesheet" href="doctordashboard.css">
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <div class="logo">
+        <h2>Afya Mama</h2>
+    </div>
+
+    <ul>
+    <li class="active">
+        <i class="fas fa-chart-pie"></i>
+        Dashboard
+    </li>
+
+    <li>
+        <i class="fas fa-user-injured"></i>
+        Patients
+    </li>
+
+    <li>
+        <a href="doctorprofile.html">
+        <i class="fas fa-user-circle"></i>
+        Profile
+        </a>
+    </li>
+
+    <li id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i>
+        Logout
+    </li>
+</ul>
+
+</div>
+
+<div class="main-content">
+
+    <h2>Doctor Dashboard</h2>
+
+    <div class="welcome-card">
+        <h3 id="doctorWelcome">Welcome, Doctor</h3>
+    </div>
+
+    <div class="search-container">
+
+        <i class="fas fa-search"></i>
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search patient by name or ID">
+
+    </div>
+
+    <div id="searchResults"></div>
+
+    <div class="patients-card">
+
+        <h3>Today's Patients</h3>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Appointment Type</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="patientTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script type="module" src="doctordashboard.js"></script>
+
+</body>
+</html>

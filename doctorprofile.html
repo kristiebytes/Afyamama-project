@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Profile - AfyaMama</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            --sidebar-bg: #5c065c;      /* Deep rich purple matching your layout */
+            --active-pink: #c9227a;     /* Accent highlight color */
+            --bg-light: #f5f6f8; 
+            --white: #ffffff; 
+            --text-heading: #5c065c; 
+            --text-dark: #201021; 
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { display: flex; background: var(--bg-light); color: var(--text-dark); min-height: 100vh; }
+
+        /* Sidebar - Exact match to your provided screenshot */
+        .sidebar { 
+            width: 260px; 
+            height: 100vh; 
+            background: var(--sidebar-bg); 
+            color: white; 
+            padding: 40px 20px; 
+            position: fixed; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        /* Top Pill Accent */
+        .sidebar-pill {
+            width: 110px;
+            height: 34px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            margin: 0 auto 24px auto;
+        }
+
+        .logo { 
+            text-align: center; 
+            margin-bottom: 40px; 
+            font-weight: 600; 
+            font-size: 1.4rem; 
+            letter-spacing: 0.5px;
+        }
+        
+        .sidebar ul { 
+            list-style: none; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
+        
+        .sidebar li { 
+            border-radius: 10px; 
+            font-weight: 600; 
+            font-size: 1.05rem;
+            transition: background 0.2s ease;
+        }
+        
+        .sidebar li a { 
+            color: #ffffff; 
+            text-decoration: none; 
+            width: 100%; 
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+            padding: 14px 20px;
+        }
+        
+        /* Highlighted Profile tab */
+        .sidebar li.active { 
+            background: var(--active-pink); 
+        }
+        
+        .sidebar li a i {
+            font-size: 1.2rem;
+            width: 24px;
+        }
+        
+        /* Logout divider and placement alignment */
+        .logout-section { 
+            margin-top: auto; 
+            border-top: 1px solid rgba(255, 255, 255, 0.15); 
+            padding-top: 20px; 
+        }
+
+        /* Profile Form Content Area */
+        .main-content { flex: 1; padding: 40px; margin-left: 260px; display: flex; align-items: center; justify-content: center; }
+        .page-container { max-width: 600px; width: 100%; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 4px 15px rgba(92, 6, 92, 0.05); }
+        
+        .avatar-wrapper { position: relative; width: 120px; margin: 0 auto 30px; }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; background: #f2e6f2; display: flex; align-items: center; justify-content: center; font-size: 50px; }
+        .edit-icon { position: absolute; bottom: 5px; right: 5px; background: var(--active-pink); color: white; padding: 8px 12px; border-radius: 50%; cursor: pointer; font-size: 14px; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        label { display: block; font-weight: 600; margin-top: 15px; color: var(--sidebar-bg); }
+        input, select { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ebd6ed; border-radius: 10px; background-color: #faf8fb; color: #333; font-size: 15px; }
+        input:focus, select:focus { border-color: var(--active-pink); outline: none; }
+        input:disabled, select:disabled { background-color: #f1ecf3; color: #777; cursor: not-allowed; }
+        
+        button { margin-top: 30px; width: 100%; padding: 14px; background: var(--sidebar-bg); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 16px; transition: background 0.2s; }
+        button:hover { background: #420342; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-pill"></div>
+        <div class="logo">Afya Mama</div>
+        <ul>
+            <li>
+                <a href="doctordashboard.html">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="patients.html">
+                    <i class="fa-solid fa-user-injured"></i> Patients
+                </a>
+            </li>
+            <li class="active">
+                <a href="profile.html">
+                    <i class="fa-regular fa-user"></i> Profile
+                </a>
+            </li>
+        </ul>
+        
+        <div class="logout-section">
+            <li id="logoutBtn">
+                <a href="#">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </li>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="page-container">
+            <div class="avatar-wrapper">
+                <div class="avatar">🩺</div>
+                <div class="edit-icon"><i class="fas fa-pen"></i></div>
+            </div>
+
+            <form id="profileForm">
+                <div class="form-grid">
+                    <div>
+                        <label>First Name *</label>
+                        <input type="text" id="docFirstName" required disabled>
+                    </div>
+                    <div>
+                        <label>Last Name *</label>
+                        <input type="text" id="docLastName" required disabled>
+                    </div>
+                </div>
+                
+                <label>Email Address</label>
+                <input type="email" id="docEmail" disabled>
+                
+                <label>Phone Number *</label>
+                <input type="text" id="docPhone" placeholder="e.g. +254 700 000000" required disabled>
+                
+                <label>Facility Name / Clinic *</label>
+                <input type="text" id="docFacility" placeholder="e.g. Kasarani Health Centre" required disabled>
+
+                <label>Gender</label>
+                <select id="docGender" disabled>
+                    <option value="">Select Gender...</option>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                </select>
+                
+                <button type="submit" id="profileBtn">Edit Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="doctorprofile.js"></script>
+</body>
+</html>
