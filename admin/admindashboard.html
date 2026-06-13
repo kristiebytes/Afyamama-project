@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AfyaMama Admin Dashboard</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+  --purple:#55075c; --purple-mid:#7a1282; --pink:#c9227a;
+  --pink-light:#fcd9ec; --purple-light:#ebd6ed;
+  --bg:#f4f1f5; --text:#201021; --muted:#7a6b7d; --border:#e2d0e4;
+  --white:#ffffff; --r:14px; --rs:8px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Segoe UI',system-ui,sans-serif;
+  display:flex;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  font-size:14px;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:240px;
+  min-height:100vh;
+  background:var(--purple);
+  color:#fff;
+  padding:28px 16px;
+  position:fixed;
+  top:0;left:0;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.logo{
+  text-align:center;
+  padding-bottom:20px;
+  border-bottom:1px solid rgba(255,255,255,.15);
+  margin-bottom:10px;
+}
+
+.logo-img{
+  width:100px;height:40px;
+  background:rgba(255,255,255,.15);
+  border-radius:40px;
+  margin:0 auto 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.logo h2{font-size:16px;font-weight:700;color:#fff;letter-spacing:.4px;}
+.logo h2 span{color:var(--pink-light);}
+
+.nav-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:11px 14px;
+  border-radius:var(--rs);
+  color:rgba(255,255,255,.75);
+  text-decoration:none;
+  font-size:13px;
+  transition:background .15s;
+}
+
+.nav-item:hover{background:rgba(255,255,255,.1);color:#fff;}
+.nav-item.active{background:var(--pink);color:#fff;}
+.nav-item i{width:18px;text-align:center;font-size:14px;}
+
+.nav-logout{
+  margin-top:auto;
+  border-top:1px solid rgba(255,255,255,.12);
+  padding-top:14px;
+}
+
+/* MAIN */
+.main{
+  margin-left:240px;
+  flex:1;
+  padding:36px 40px;
+}
+
+/* HEADER */
+.top-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:30px;
+}
+
+.top-bar h1{font-size:22px;font-weight:700;color:var(--purple);}
+.top-bar p{font-size:13px;color:var(--muted);margin-top:2px;}
+
+.date-pill{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:7px 14px;
+  font-size:12.5px;
+  color:var(--muted);
+}
+
+/* STAT CARDS */
+.cards-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+  margin-bottom:32px;
+}
+
+.stat-card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:22px 24px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.stat-icon{
+  width:52px;height:52px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+}
+
+.ic-purple{background:var(--purple-light);color:var(--purple);}
+.ic-pink{background:var(--pink-light);color:var(--pink);}
+.ic-green{background:#e6f4ea;color:#1e6b33;}
+.ic-blue{background:#e3f0fb;color:#1565c0;}
+.ic-orange{background:#fff3e0;color:#e65100;}
+.ic-teal{background:#e0f4f1;color:#00695c;}
+
+.stat-val{
+  font-size:28px;
+  font-weight:700;
+  color:var(--purple);
+  line-height:1;
+}
+
+.stat-lbl{font-size:12px;color:var(--muted);}
+.stat-sub{font-size:11px;color:#b0a0b3;}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <h2>Afya<span>Mama</span> Admin</h2>
+  </div>
+
+  <a href="admindashboard.html" class="nav-item active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+  <a href="adminusers.html" class="nav-item"><i class="fas fa-users"></i> Users</a>
+  <a href="adminreport.html" class="nav-item"><i class="fas fa-file-alt"></i> Reports</a>
+  <a href="adminnotification.html" class="nav-item"><i class="fas fa-bell"></i> Notifications</a>
+  <a href="adminprofile.html" class="nav-item"><i class="fas fa-user-circle"></i> Profile</a>
+
+  <div class="nav-logout">
+    <a href="#" class="nav-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div>
+      <h1>Welcome back, Admin</h1>
+      <p>Dashboard overview</p>
+    </div>
+    <div class="date-pill" id="todayDate">—</div>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="cards-grid">
+
+    <div class="stat-card">
+      <div class="stat-icon ic-purple"><i class="fas fa-female"></i></div>
+      <div>
+        <div class="stat-val" id="motherCount">—</div>
+        <div class="stat-lbl">Total Mothers</div>
+        <div class="stat-sub">Registered in system</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon ic-blue"><i class="fas fa-user-md"></i></div>
+      <div>
+        <div class="stat-val" id="doctorCount">—</div>
+        <div class="stat-lbl">Total Doctors</div>
+        <div class="stat-sub">Active healthcare workers</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon ic-pink"><i class="fas fa-baby"></i></div>
+      <div>
+        <div class="stat-val" id="childrenCount">—</div>
+        <div class="stat-lbl">Total Children</div>
+        <div class="stat-sub">Enrolled children</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon ic-green"><i class="fas fa-stethoscope"></i></div>
+      <div>
+        <div class="stat-val" id="ancCount">—</div>
+        <div class="stat-lbl">ANC Visits</div>
+        <div class="stat-sub">Antenatal care visits</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon ic-orange"><i class="fas fa-syringe"></i></div>
+      <div>
+        <div class="stat-val" id="vaccineCount">—</div>
+        <div class="stat-lbl">Vaccines Given</div>
+        <div class="stat-sub">Total immunizations</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon ic-teal"><i class="fas fa-heartbeat"></i></div>
+      <div>
+        <div class="stat-val" id="pncCount">—</div>
+        <div class="stat-lbl">PNC Visits</div>
+        <div class="stat-sub">Postnatal care visits</div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app = initializeApp({
+    apiKey: "AIzaSyDdkxqgxqInhIG-L0v7H_LJeqjAEap4B1s",
+  authDomain: "afyamama-5cbaf.firebaseapp.com",
+  projectId: "afyamama-5cbaf",
+  storageBucket: "afyamama-5cbaf.firebasestorage.app",
+  messagingSenderId: "973201830551",
+  appId: "1:973201830551:web:04db5011ab139f4d16efd2",
+  measurementId: "G-K6321ZYT7N"
+});
+
+const db = getFirestore(app);
+
+/* date */
+document.getElementById("todayDate").textContent =
+  new Date().toLocaleDateString("en-KE", { weekday:"short", day:"numeric", month:"long", year:"numeric" });
+
+async function safeCount(col, constraints = []) {
+  const snap = await getDocs(constraints.length
+    ? query(collection(db, col), ...constraints)
+    : collection(db, col));
+  return snap.size;
+}
+
+function setVal(id, val){ document.getElementById(id).textContent = val; }
+
+async function loadDashboard(){
+  const [mothers, doctors, children, anc, vaccines, pnc] = await Promise.all([
+    safeCount("mothers"),
+    safeCount("doctors"),
+    safeCount("Children"),
+    safeCount("ANC_Visits"),
+    safeCount("Immunizations"),
+    safeCount("PNC_Visits"),
+  ]);
+
+  setVal("motherCount", mothers);
+  setVal("doctorCount", doctors);
+  setVal("childrenCount", children);
+  setVal("ancCount", anc);
+  setVal("vaccineCount", vaccines);
+  setVal("pncCount", pnc);
+}
+
+loadDashboard();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Notifications – AfyaMama Admin</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --purple:#55075c; --purple-mid:#7a1282; --pink:#c9227a;
+  --pink-light:#fcd9ec; --purple-light:#ebd6ed;
+  --bg:#f4f1f5; --text:#201021; --muted:#7a6b7d; --border:#e2d0e4;
+  --s-bg:#e6f4ea; --s-fg:#1e6b33;
+  --w-bg:#fff8e1; --w-fg:#7a5800;
+  --d-bg:#fdecea; --d-fg:#b71c1c;
+  --r:12px; --rs:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;display:flex;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+
+/* SIDEBAR */
+.sidebar{width:240px;min-height:100vh;background:var(--purple);color:#fff;padding:28px 16px;position:fixed;top:0;left:0;display:flex;flex-direction:column;gap:6px;}
+.logo{font-size:18px;font-weight:700;text-align:center;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:8px;}
+.logo span{color:var(--pink-light);}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:var(--rs);color:rgba(255,255,255,.75);text-decoration:none;font-size:13px;transition:background .15s;}
+.nav-item:hover{background:rgba(255,255,255,.1);color:#fff;}
+.nav-item.active{background:var(--pink);color:#fff;}
+.nav-item i{width:18px;text-align:center;}
+
+/* MAIN */
+.main{margin-left:240px;flex:1;padding:36px 40px;}
+.page-hdr{margin-bottom:24px;}
+.page-hdr h1{font-size:22px;font-weight:700;color:var(--purple);}
+.page-hdr p{font-size:13px;color:var(--muted);margin-top:3px;}
+
+/* STATS */
+.stats{display:flex;gap:14px;margin-bottom:28px;}
+.stat{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:14px 20px;flex:1;display:flex;align-items:center;gap:12px;}
+.stat-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.ico-pu{background:var(--purple-light);color:var(--purple);}
+.ico-pk{background:var(--pink-light);color:var(--pink);}
+.ico-gr{background:var(--s-bg);color:var(--s-fg);}
+.ico-or{background:#fff3e0;color:#e65100;}
+.stat-val{font-size:22px;font-weight:700;color:var(--purple);line-height:1;}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:24px;}
+.tab{padding:10px 20px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;}
+.tab.active{color:var(--purple);border-bottom-color:var(--purple);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* FORM */
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:28px 30px;max-width:720px;}
+.fg{margin-bottom:18px;}
+.fg label{font-weight:600;font-size:12.5px;color:var(--purple);display:block;margin-bottom:6px;}
+.fg label .req{color:var(--pink);}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:var(--rs);background:#faf8fb;font-size:13.5px;color:var(--text);transition:border-color .15s;font-family:inherit;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--purple);}
+.fg textarea{resize:vertical;min-height:90px;}
+.char-hint{font-size:11px;color:var(--muted);text-align:right;margin-top:3px;}
+
+/* TYPE CARDS */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.type-opt{border:2px solid var(--border);border-radius:var(--rs);padding:14px;cursor:pointer;transition:all .15s;}
+.type-opt:hover{border-color:var(--purple-mid);}
+.type-opt.sel{border-color:var(--purple);background:var(--purple-light);}
+.type-opt .ticon{font-size:20px;color:var(--muted);margin-bottom:6px;}
+.type-opt.sel .ticon{color:var(--purple);}
+.type-opt .tlabel{font-weight:700;font-size:13px;color:var(--purple);}
+.type-opt .tdesc{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* RECIPIENT BANNER */
+.rcpt-info{display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:var(--rs);font-size:12.5px;margin-bottom:18px;border:1px solid var(--border);background:#f9f4fb;color:var(--muted);}
+.rcpt-info.ok{background:var(--purple-light);color:var(--purple);border-color:#cba8d4;}
+.rcpt-info.err{background:var(--d-bg);color:var(--d-fg);border-color:#f5b4b4;}
+
+/* SCHEDULE */
+.sched-toggle{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--purple-light);border-radius:var(--rs);margin-bottom:18px;cursor:pointer;user-select:none;}
+.sched-toggle input{width:16px;height:16px;accent-color:var(--purple);cursor:pointer;}
+.sched-toggle span{font-size:13px;font-weight:600;color:var(--purple);}
+.sched-fields{display:none;grid-template-columns:1fr 1fr;gap:16px;}
+.sched-fields.show{display:grid;}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+.btn{padding:11px 22px;border:none;border-radius:25px;font-weight:700;font-size:13px;cursor:pointer;transition:opacity .15s;display:inline-flex;align-items:center;gap:7px;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn-draft{background:var(--purple-light);color:var(--purple);}
+.btn-send{background:var(--purple);color:#fff;}
+.btn-sched{background:var(--pink);color:#fff;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;padding:13px 20px;border-radius:var(--rs);font-size:13.5px;font-weight:600;box-shadow:0 4px 18px rgba(0,0,0,.18);z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:9px;max-width:360px;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{background:var(--s-bg);color:var(--s-fg);border-left:4px solid var(--s-fg);}
+.toast.info{background:var(--w-bg);color:var(--w-fg);border-left:4px solid #d4a800;}
+.toast.err{background:var(--d-bg);color:var(--d-fg);border-left:4px solid var(--d-fg);}
+
+/* HISTORY */
+.filter-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.filter-row select,.filter-row input[type=date]{padding:8px 12px;border:1px solid var(--border);border-radius:var(--rs);background:#fff;font-size:13px;color:var(--text);}
+.notif-list{display:flex;flex-direction:column;gap:10px;}
+.nc{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:16px 20px;display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:start;}
+.nc-ico{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.nc-ico.pre{background:var(--purple-light);color:var(--purple);}
+.nc-ico.post{background:var(--pink-light);color:var(--pink);}
+.nc-title{font-weight:700;font-size:14px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nc-msg{font-size:12.5px;color:var(--muted);margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.nc-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.b-pre{background:var(--purple-light);color:var(--purple);}
+.b-post{background:var(--pink-light);color:var(--pink);}
+.b-sent{background:var(--s-bg);color:var(--s-fg);}
+.b-draft{background:#f0f0f0;color:#555;}
+.b-sched{background:var(--w-bg);color:var(--w-fg);}
+.mt{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+.nc-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end;white-space:nowrap;}
+.abtn{padding:6px 14px;border:none;border-radius:20px;font-size:11.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:opacity .15s;}
+.abtn:hover{opacity:.8;}
+.abtn.del{background:var(--d-bg);color:var(--d-fg);}
+.abtn.now{background:var(--s-bg);color:var(--s-fg);}
+.empty{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty i{font-size:38px;margin-bottom:12px;display:block;color:#cba8d4;}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(32,16,33,.5);z-index:1000;display:none;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:#fff;border-radius:var(--r);padding:28px;max-width:400px;width:90%;}
+.modal h3{font-size:16px;color:var(--purple);margin-bottom:8px;}
+.modal p{font-size:13.5px;color:var(--muted);margin-bottom:20px;line-height:1.6;}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;}
+.modal-btns button{padding:9px 20px;border:none;border-radius:20px;font-weight:600;font-size:13px;cursor:pointer;}
+.mbtn-cancel{background:#f0f0f0;color:#444;}
+.mbtn-del{background:var(--d-fg);color:#fff;}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">Afya<span>Mama</span></div>
+  <a href="admindashboard.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+  <a href="adminusers.html"     class="nav-item"><i class="fas fa-users"></i> Mothers</a>
+  <a href="adminreport.html"    class="nav-item"><i class="fas fa-file-alt"></i> Reports</a>
+  <a href="adminnotification.html" class="nav-item active"><i class="fas fa-bell"></i> Notifications</a>
+  <a href="adminprofile.html"   class="nav-item"><i class="fas fa-user-circle"></i> Profile</a>
+</aside>
+
+<main class="main">
+  <div class="page-hdr">
+    <h1>Wellness Notifications</h1>
+    <p>Send targeted health tips to prenatal and postnatal mothers</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><div class="stat-ico ico-pu"><i class="fas fa-paper-plane"></i></div><div><div class="stat-val" id="sTot">0</div><div class="stat-lbl">Total sent</div></div></div>
+    <div class="stat"><div class="stat-ico ico-pk"><i class="fas fa-baby"></i></div><div><div class="stat-val" id="sPre">0</div><div class="stat-lbl">Prenatal</div></div></div>
+    <div class="stat"><div class="stat-ico ico-gr"><i class="fas fa-heartbeat"></i></div><div><div class="stat-val" id="sPost">0</div><div class="stat-lbl">Postnatal</div></div></div>
+    <div class="stat"><div class="stat-ico ico-or"><i class="fas fa-clock"></i></div><div><div class="stat-val" id="sSched">0</div><div class="stat-lbl">Scheduled</div></div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('compose')">Compose</div>
+    <div class="tab" onclick="switchTab('history')">History</div>
+  </div>
+
+  <!-- COMPOSE -->
+  <div id="tab-compose" class="tab-panel active">
+    <div class="card">
+
+      <div class="fg">
+        <label>Who receives this? <span class="req">*</span></label>
+        <div class="type-grid">
+          <div class="type-opt sel" id="opt-prenatal" onclick="selectType('prenatal')">
+            <div class="ticon"><i class="fas fa-baby-carriage"></i></div>
+            <div class="tlabel">Prenatal mothers</div>
+            <div class="tdesc">Currently pregnant</div>
+          </div>
+          <div class="type-opt" id="opt-postnatal" onclick="selectType('postnatal')">
+            <div class="ticon"><i class="fas fa-heartbeat"></i></div>
+            <div class="tlabel">Postnatal mothers</div>
+            <div class="tdesc">After delivery</div>
+          </div>
+        </div>
+        <div class="rcpt-info" id="rcptInfo">
+          <i class="fas fa-spinner fa-spin"></i><span>Loading recipient count…</span>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Title <span class="req">*</span></label>
+        <input type="text" id="notifTitle" placeholder="e.g. Iron-rich foods this trimester" maxlength="120">
+      </div>
+
+      <div class="fg">
+        <label>Message <span class="req">*</span></label>
+        <textarea id="notifMsg" placeholder="Write your wellness tip here…" maxlength="500" oninput="document.getElementById('cc').textContent=this.value.length"></textarea>
+        <div class="char-hint"><span id="cc">0</span> / 500</div>
+      </div>
+
+      <!-- SCHEDULE TOGGLE -->
+      <label class="sched-toggle" for="schedChk">
+        <input type="checkbox" id="schedChk" onchange="toggleSched(this.checked)">
+        <i class="fas fa-calendar-alt" style="color:var(--purple)"></i>
+        <span>Schedule for a later date &amp; time</span>
+      </label>
+
+      <div class="sched-fields" id="schedFields">
+        <div class="fg">
+          <label>Date <span class="req">*</span></label>
+          <input type="date" id="schedDate">
+        </div>
+        <div class="fg">
+          <label>Time <span class="req">*</span></label>
+          <input type="time" id="schedTime">
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-draft" id="btnDraft" onclick="submit('draft')"><i class="fas fa-save"></i> Save draft</button>
+        <button class="btn btn-send"  id="btnSend"  onclick="submit('sent')"><i class="fas fa-paper-plane"></i> Send now</button>
+        <button class="btn btn-sched" id="btnSched" onclick="submit('scheduled')" style="display:none"><i class="fas fa-clock"></i> Schedule</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="tab-history" class="tab-panel">
+    <div class="filter-row">
+      <select id="fType" onchange="renderHistory()">
+        <option value="">All types</option>
+        <option value="prenatal">Prenatal</option>
+        <option value="postnatal">Postnatal</option>
+      </select>
+      <select id="fStatus" onchange="renderHistory()">
+        <option value="">All statuses</option>
+        <option value="sent">Sent</option>
+        <option value="scheduled">Scheduled</option>
+        <option value="draft">Draft</option>
+      </select>
+      <input type="date" id="fDate" onchange="renderHistory()">
+    </div>
+    <div class="notif-list" id="notifList">
+      <div class="empty"><i class="fas fa-bell-slash"></i><p>Loading…</p></div>
+    </div>
+  </div>
+</main>
+
+<!-- DELETE MODAL -->
+<div class="overlay" id="delModal">
+  <div class="modal">
+    <h3>Delete notification?</h3>
+    <p>This will permanently remove the notification record(s). This cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="mbtn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="mbtn-del"    id="confirmDel">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore, collection, doc,
+  addDoc, getDocs, deleteDoc, updateDoc,
+  query, where, orderBy, onSnapshot,
+  serverTimestamp, Timestamp, writeBatch
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ── CONFIG ── */
+const app = initializeApp({
+  apiKey:"AIzaSyDdkxqgxqInhIG-L0v7H_LJeqjAEap4B1s",
+  authDomain:"afyamama-5cbaf.firebaseapp.com",
+  projectId:"afyamama-5cbaf",
+  storageBucket:"afyamama-5cbaf.firebasestorage.app",
+  messagingSenderId:"973201830551",
+  appId:"1:973201830551:web:04db5011ab139f4d16efd2"
+});
+const db = getFirestore(app);
+
+/* ── STATE ── */
+let selectedType = "prenatal";
+let allDocs      = [];          // raw notification docs from Firestore
+let pendingDelIds = [];
+let toastTimer;
+
+/* ── TOAST ── */
+function toast(msg, type="ok") {
+  clearTimeout(toastTimer);
+  const el = document.getElementById("toast");
+  const icon = type==="ok" ? "check-circle" : type==="err" ? "times-circle" : "info-circle";
+  el.innerHTML = `<i class="fas fa-${icon}"></i> ${msg}`;
+  el.className = `toast show ${type}`;
+  toastTimer = setTimeout(() => { el.className = "toast"; }, 4000);
+}
+
+/* ── TAB SWITCH ── */
+window.switchTab = function(tab) {
+  document.querySelectorAll(".tab").forEach((t,i) => t.classList.toggle("active", ["compose","history"][i]===tab));
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.getElementById("tab-"+tab).classList.add("active");
+};
+
+/* ── TYPE SELECTOR ── */
+window.selectType = function(type) {
+  selectedType = type;
+  document.getElementById("opt-prenatal").classList.toggle("sel", type==="prenatal");
+  document.getElementById("opt-postnatal").classList.toggle("sel", type==="postnatal");
+  loadCount(type);
+};
+
+async function loadCount(type) {
+  const el = document.getElementById("rcptInfo");
+  el.className = "rcpt-info";
+  el.innerHTML = `<i class="fas fa-spinner fa-spin"></i><span>Counting ${type} mothers…</span>`;
+  try {
+    /*
+     * ⚠️ IMPORTANT: Change "pregnancyStatus" to the actual field name
+     * 
+     */
+    const snap = await getDocs(query(collection(db,"mothers"), where("pregnancyStatus","==",type)));
+    const n = snap.size;
+    el.className = n > 0 ? "rcpt-info ok" : "rcpt-info err";
+    el.innerHTML = n > 0
+      ? `<i class="fas fa-users"></i><span><strong>${n}</strong> ${type} mother${n!==1?"s":""} will receive this</span>`
+      : `<i class="fas fa-exclamation-triangle"></i><span>No ${type} mothers found. Check your database field name.</span>`;
+  } catch(e) {
+    el.className = "rcpt-info err";
+    el.innerHTML = `<i class="fas fa-exclamation-triangle"></i><span>Could not load count — ${e.message}</span>`;
+  }
+}
+loadCount("prenatal");
+
+/* ── SCHEDULE TOGGLE ── */
+window.toggleSched = function(on) {
+  document.getElementById("schedFields").className = "sched-fields" + (on ? " show" : "");
+  document.getElementById("btnSend").style.display  = on ? "none" : "inline-flex";
+  document.getElementById("btnSched").style.display = on ? "inline-flex" : "none";
+  if (on) {
+    const d = new Date(); d.setHours(d.getHours()+1);
+    document.getElementById("schedDate").value = d.toISOString().slice(0,10);
+    document.getElementById("schedTime").value = d.toTimeString().slice(0,5);
+  }
+};
+
+/* ── SUBMIT ── */
+window.submit = async function(mode) {
+  const title   = document.getElementById("notifTitle").value.trim();
+  const message = document.getElementById("notifMsg").value.trim();
+  if (!title)   { toast("Please enter a title.", "err"); return; }
+  if (!message) { toast("Please enter a message.", "err"); return; }
+
+  /* Validate scheduled time */
+  let scheduledFor = null;
+  if (mode === "scheduled") {
+    const dv = document.getElementById("schedDate").value;
+    const tv = document.getElementById("schedTime").value;
+    if (!dv || !tv) { toast("Please choose a date and time.", "err"); return; }
+    const dt = new Date(`${dv}T${tv}`);
+    if (isNaN(dt.getTime()))   { toast("Invalid date or time.", "err"); return; }
+    if (dt <= new Date())      { toast("Scheduled time must be in the future.", "err"); return; }
+    scheduledFor = Timestamp.fromDate(dt);
+  }
+
+  /* Disable all buttons */
+  ["btnDraft","btnSend","btnSched"].forEach(id => {
+    const b = document.getElementById(id); if(b) b.disabled = true;
+  });
+
+  try {
+    if (mode === "draft") {
+      /* Single broadcast draft — no per-mother records needed */
+      await addDoc(collection(db,"notifications"), {
+        admin_id:     "admin",
+        mother_id:    null,
+        title, message,
+        category:     selectedType,
+        status:       "draft",
+        date_sent:    null,
+        scheduled_for:null,
+        createdAt:    serverTimestamp()
+      });
+      toast("Draft saved.", "info");
+      resetForm();
+      return;
+    }
+
+    /* Fetch matching mothers */
+    const usersSnap = await getDocs(
+      query(collection(db,"mothers"), where("pregnancyStatus","==",selectedType))
+    );
+
+    if (usersSnap.empty) {
+      toast(`No ${selectedType} mothers found in the database.`, "err");
+      return;
+    }
+
+    /* Batch write — max 500 per batch, so chunk them */
+    const CHUNK = 450;
+    const users  = usersSnap.docs;
+    const now    = mode === "sent" ? Timestamp.now() : null;
+
+    for (let i = 0; i < users.length; i += CHUNK) {
+      const chunk = users.slice(i, i + CHUNK);
+      const batch = writeBatch(db);
+      chunk.forEach(u => {
+        const ref = doc(collection(db,"notifications"));
+        batch.set(ref, {
+          admin_id:      "admin",
+          mother_id:     u.id,
+          title, message,
+          category:      selectedType,
+          status:        mode,
+          date_sent:     now,
+          scheduled_for: scheduledFor,
+          mother_name:   u.data().fullName || u.data().name || "",
+          mother_phone:  u.data().phoneNumber || u.data().phone || "",
+          createdAt:     Timestamp.now()
+        });
+      });
+      await batch.commit();
+    }
+
+    const n = users.length;
+    if (mode === "sent") {
+      toast(`Sent to ${n} ${selectedType} mother${n!==1?"s":""}!`, "ok");
+    } else {
+      const d = document.getElementById("schedDate").value;
+      const t = document.getElementById("schedTime").value;
+      const readableDate = new Date(`${d}T${t}`).toLocaleString("en-KE",{dateStyle:"medium",timeStyle:"short"});
+      toast(`Scheduled for ${readableDate} — ${n} mother${n!==1?"s":""}`, "ok");
+    }
+    resetForm();
+
+  } catch(e) {
+    console.error(e);
+    toast("Error: " + e.message, "err");
+  } finally {
+    ["btnDraft","btnSend","btnSched"].forEach(id => {
+      const b = document.getElementById(id); if(b) b.disabled = false;
+    });
+  }
+};
+
+function resetForm() {
+  document.getElementById("notifTitle").value = "";
+  document.getElementById("notifMsg").value   = "";
+  document.getElementById("cc").textContent   = "0";
+  document.getElementById("schedChk").checked = false;
+  toggleSched(false);
+}
+
+/* ── REAL-TIME LISTENER ──
+   We sort client-side to avoid needing a composite Firestore index.
+*/
+onSnapshot(collection(db,"notifications"), snap => {
+  allDocs = snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a,b) => {
+      const ta = a.createdAt?.seconds || 0;
+      const tb = b.createdAt?.seconds || 0;
+      return tb - ta;  // newest first
+    });
+  updateStats();
+  renderHistory();
+});
+
+/* ── STATS ── */
+function updateStats() {
+  /* De-duplicate: group sent notifications by (title+category) so batch-writes
+     count as one "send event" with N recipients */
+  const groups = {};
+  allDocs.forEach(n => {
+    const key = n.status === "draft"
+      ? `draft__${n.id}`
+      : `${n.status}__${n.category}__${n.title}`;
+    if (!groups[key]) groups[key] = { ...n, count: 0 };
+    if (n.mother_id) groups[key].count++;
+  });
+  const vals = Object.values(groups);
+  const sentGroups = vals.filter(g => g.status === "sent");
+
+  document.getElementById("sTot").textContent   = sentGroups.reduce((a,g)=>a+g.count,0);
+  document.getElementById("sPre").textContent   = sentGroups.filter(g=>g.category==="prenatal").reduce((a,g)=>a+g.count,0);
+  document.getElementById("sPost").textContent  = sentGroups.filter(g=>g.category==="postnatal").reduce((a,g)=>a+g.count,0);
+  document.getElementById("sSched").textContent = vals.filter(g=>g.status==="scheduled").reduce((a,g)=>a+g.count,0);
+}
+
+/* ── RENDER HISTORY ── */
+window.renderHistory = function() {
+  const fType   = document.getElementById("fType").value;
+  const fStatus = document.getElementById("fStatus").value;
+  const fDate   = document.getElementById("fDate").value;
+
+  /* Group docs into broadcast cards */
+  const groups = {};
+  allDocs.forEach(n => {
+    const key = n.status === "draft"
+      ? `draft__${n.id}`
+      : `${n.status}__${n.category}__${n.title}`;
+    if (!groups[key]) groups[key] = { ...n, ids: [], count: 0 };
+    groups[key].ids.push(n.id);
+    if (n.mother_id) groups[key].count++;
+  });
+
+  let list = Object.values(groups).filter(g => {
+    if (fType   && g.category !== fType)   return false;
+    if (fStatus && g.status   !== fStatus) return false;
+    if (fDate) {
+      const ref = g.date_sent || g.scheduled_for || g.createdAt;
+      if (ref?.seconds) {
+        const day = new Date(ref.seconds*1000).toISOString().slice(0,10);
+        if (day !== fDate) return false;
+      }
+    }
+    return true;
+  });
+
+  const el = document.getElementById("notifList");
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><i class="fas fa-bell-slash"></i><p>No notifications found.</p></div>`;
+    return;
+  }
+
+  el.innerHTML = list.map((g, idx) => {
+    const isPre  = g.category === "prenatal";
+    const typeBadge = isPre
+      ? `<span class="badge b-pre"><i class="fas fa-baby"></i> Prenatal</span>`
+      : `<span class="badge b-post"><i class="fas fa-heartbeat"></i> Postnatal</span>`;
+
+    const statusBadge =
+      g.status === "sent"      ? `<span class="badge b-sent"><i class="fas fa-check"></i> Sent</span>` :
+      g.status === "scheduled" ? `<span class="badge b-sched"><i class="fas fa-clock"></i> Scheduled</span>` :
+                                 `<span class="badge b-draft"><i class="fas fa-file"></i> Draft</span>`;
+
+    const ts = g.status==="sent" ? g.date_sent : g.status==="scheduled" ? g.scheduled_for : g.createdAt;
+    const timeStr = ts?.seconds
+      ? new Date(ts.seconds*1000).toLocaleString("en-KE",{dateStyle:"medium",timeStyle:"short"})
+      : "—";
+
+    const recipLine = g.status === "draft"
+      ? `<span class="mt"><i class="fas fa-save"></i> Draft only</span>`
+      : `<span class="mt"><i class="fas fa-users"></i> ${g.count} mother${g.count!==1?"s":""}</span>`;
+
+    const sendNowBtn = g.status === "scheduled"
+      ? `<button class="abtn now" data-idx="${idx}"><i class="fas fa-paper-plane"></i> Send now</button>`
+      : "";
+
+    return `
+      <div class="nc">
+        <div class="nc-ico ${isPre?"pre":"post"}"><i class="fas fa-${isPre?"baby-carriage":"heartbeat"}"></i></div>
+        <div>
+          <div class="nc-title">${escHtml(g.title)}</div>
+          <div class="nc-msg">${escHtml(g.message)}</div>
+          <div class="nc-meta">
+            ${typeBadge} ${statusBadge} ${recipLine}
+            <span class="mt"><i class="fas fa-clock"></i> ${timeStr}</span>
+          </div>
+        </div>
+        <div class="nc-actions">
+          <button class="abtn del" data-idx="${idx}"><i class="fas fa-trash"></i> Delete</button>
+          ${sendNowBtn}
+        </div>
+      </div>`;
+  }).join("");
+
+  /* Attach events using stored index rather than JSON in onclick to avoid escaping issues */
+  window._histGroups = list;
+  document.querySelectorAll(".abtn.del").forEach(b => {
+    b.addEventListener("click", () => {
+      const g = window._histGroups[+b.dataset.idx];
+      openDeleteModal(g.ids);
+    });
+  });
+  document.querySelectorAll(".abtn.now").forEach(b => {
+    b.addEventListener("click", () => {
+      const g = window._histGroups[+b.dataset.idx];
+      sendNow(g.ids);
+    });
+  });
+};
+
+function escHtml(s) {
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+/* ── SEND SCHEDULED NOW ── */
+async function sendNow(ids) {
+  try {
+    const now = Timestamp.now();
+    const CHUNK = 450;
+    for (let i=0; i<ids.length; i+=CHUNK) {
+      const batch = writeBatch(db);
+      ids.slice(i,i+CHUNK).forEach(id => {
+        batch.update(doc(db,"notifications",id),{ status:"sent", date_sent:now, scheduled_for:null });
+      });
+      await batch.commit();
+    }
+    toast("Notification sent immediately!", "ok");
+  } catch(e) { toast("Failed: "+e.message, "err"); }
+}
+
+/* ── DELETE ── */
+function openDeleteModal(ids) {
+  pendingDelIds = ids;
+  document.getElementById("delModal").classList.add("open");
+}
+window.closeModal = function() {
+  document.getElementById("delModal").classList.remove("open");
+  pendingDelIds = [];
+};
+document.getElementById("confirmDel").addEventListener("click", async () => {
+  try {
+    const CHUNK = 450;
+    for (let i=0; i<pendingDelIds.length; i+=CHUNK) {
+      const batch = writeBatch(db);
+      pendingDelIds.slice(i,i+CHUNK).forEach(id => batch.delete(doc(db,"notifications",id)));
+      await batch.commit();
+    }
+    toast("Notification deleted.", "info");
+    closeModal();
+  } catch(e) { toast("Delete failed: "+e.message,"err"); }
+});
+</script>
+</body>
+</html>
