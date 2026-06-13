@@ -276,13 +276,16 @@ section-label {
 }
 </style>
 </head>
+
 <body>
 
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="logo">Afya<span>Mama</span></div>
   <div class="topbar-right">
-    <span style="font-size:13px;opacity:0.85;">Dr. Akinyi Omondi · KNH</span>
+  <span id="doctorInfo" style="font-size:13px;opacity:0.85;">
+  Loading doctor...
+</span>
     <button class="switch-btn" onclick="switchToChild()">View Child Record →</button>
   </div>
 </div>
@@ -291,15 +294,17 @@ section-label {
 
   <!-- MOTHER BANNER -->
   <div class="mother-banner">
-    <div>
-      <h2 id="motherName">Jane Wanjiru Kamau</h2>
-      <div class="meta">
-        <span>ID: M004</span>
-        <span id="dobSpan">DOB: 14 Mar 1995</span>
-        <span id="deliverySpan">Delivered: 1 Dec 2025</span>
-        <span id="gravidaSpan">G2P2</span>
-      </div>
+  <div>
+    <h2 id="motherName">Loading...</h2>
+
+    <div class="meta">
+      <span id="motherId">ID: ...</span>
+      <span id="dobSpan">DOB: ...</span>
+      <span id="deliverySpan">Delivered: ...</span>
+      <span id="gravidaSpan">G2P2</span>
     </div>
+  </div>
+</div>
     <div class="visit-count">
       <div class="num" id="visitCountNum">4</div>
       <div class="lbl">PNC visits</div>
@@ -532,63 +537,48 @@ section-label {
 
 <script>
 // ─── MOTHER DATA ──────────────────────────────
-const mother = {
-  id: "M004",
-  name: "Jane Wanjiru Kamau",
-  dob: new Date("1995-03-14"),
-  deliveryDate: new Date("2025-12-01"),
-  gravida: 2,
-  parity: 2,
-  childId: "CH004"
-};
+let mother = null;
 
-// ─── VISIT DATABASE ───────────────────────────
-let visitsDB = [
-  {
-    date: "2025-12-01",
-    label: "Birth visit",
-    bp:"118/76", pulse:80, temp:36.8,
-    woundStatus:"Healing well",
-    lochia:"Rubra (red) — normal",
-    breastfeeding:"Exclusive breastfeeding",
-    epdsScore: 1, epdsLevel:"Low",
-    fpMethod:"Progestogen-only pill (POP/Minipill)",
-    notes:"Mother delivered normally. Baby alert. Exclusive breastfeeding initiated."
-  },
-  {
-    date: "2025-12-15",
-    label: "2-week PNC",
-    bp:"120/78", pulse:76, temp:36.6,
-    woundStatus:"Healing well",
-    lochia:"Serosa (pink/brown) — normal",
-    breastfeeding:"Exclusive breastfeeding",
-    epdsScore: 3, epdsLevel:"Low",
-    fpMethod:"Progestogen-only pill (POP/Minipill)",
-    notes:"Mother recovering well. Discussed exclusive breastfeeding and minipill."
-  },
-  {
-    date: "2026-01-12",
-    label: "6-week PNC",
-    bp:"122/80", pulse:78, temp:36.5,
-    woundStatus:"Healing well",
-    lochia:"Alba (white/yellow) — normal",
-    breastfeeding:"Exclusive breastfeeding",
-    epdsScore: 5, epdsLevel:"Low",
-    fpMethod:"Progestogen-only pill (POP/Minipill)",
-    notes:"6-week check complete. All vitals normal. Mother reports mild fatigue."
-  },
-  {
-    date: "2026-03-09",
-    label: "3-month PNC",
-    bp:"124/82", pulse:80, temp:36.7,
-    woundStatus:"Not applicable (normal delivery)",
-    lochia:"Not applicable (normal delivery)",
-    breastfeeding:"Exclusive breastfeeding",
-    epdsScore: 4, epdsLevel:"Low",
-    fpMethod:"Progestogen-only pill (POP/Minipill)",
-    notes:"Mother doing well. Continuing exclusive breastfeeding."
+async function fetchMother() {
+  const id = sessionStorage.getItem("selectedMother");
+
+  if (!id) {
+    alert("No mother selected. Redirecting to dashboard.");
+    window.location.href = "/dashboard.html";
+    return;
   }
-];
+
+  const res = await fetch(`/api/mothers/${id}`);
+
+  if (!res.ok) {
+    alert("Mother record not found.");
+    return;
+  }
+
+  mother = await res.json();
+
+  mother.dob = new Date(mother.dob);
+  mother.deliveryDate = new Date(mother.delivery_date);
+
+  init();
+}
+// Doctor Data
+async function loadDoctor() {
+  try {
+    const res = await fetch("/api/auth/me");
+
+    if (!res.ok) throw new Error();
+
+    const doctor = await res.json();
+
+    document.getElementById("doctorInfo").textContent =
+      `${doctor.full_name} · ${doctor.facility}`;
+
+  } catch (e) {
+    document.getElementById("doctorInfo").textContent =
+      "Doctor unavailable";
+  }
+}
 
 // ─── HELPERS ──────────────────────────────────
 function weeksPostpartum(){
@@ -598,13 +588,13 @@ function weeksPostpartum(){
 function formatDate(d){
   return new Date(d).toLocaleDateString("en-KE",{ day:"numeric", month:"short", year:"numeric" });
 }
-
+let visitsDB = [];
 // ─── INIT ─────────────────────────────────────
 function init(){
-  document.getElementById("motherName").textContent    = mother.name;
+  document.getElementById("motherName").textContent = mother.full_name;
   document.getElementById("dobSpan").textContent       = "DOB: " + formatDate(mother.dob);
   document.getElementById("deliverySpan").textContent  = "Delivered: " + formatDate(mother.deliveryDate);
-  document.getElementById("gravidaSpan").textContent   = "G" + mother.gravida + "P" + mother.parity;
+  document.getElementById("gravidaSpan").textContent = "G" + mother.gravida + "P" + mother.parity;
   document.getElementById("visitCountNum").textContent = visitsDB.length;
   document.getElementById("weeksPostpartum").textContent = weeksPostpartum() + " wks postpartum";
 
@@ -755,10 +745,16 @@ function showToast(){
 }
 
 function switchToChild(){
-  alert("In the full system this would open the child record for Child ID: " + mother.childId);
+  if (!mother?.child_id) {
+    alert("No linked child record found.");
+    return;
+  }
+
+  window.location.href = `/child.html?id=${mother.child_id}`;
 }
 
-init();
+fetchMother();
+loadDoctor();
 </script>
 </body>
 </html>
