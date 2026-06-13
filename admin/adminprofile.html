@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Profile - AfyaMama</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary: #55075c;
+  --rose:    #c9227a;
+  --bg:      #f5f6f8;
+  --white:   #ffffff;
+  --border:  #ebd6ed;
+  --muted:   #736275;
+  --green:   #1a7f4e;
+  --red:     #b91c1c;
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+body { display:flex; background:var(--bg); color:#201021; min-height:100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width:260px; height:100vh; background:var(--primary);
+  color:white; padding:24px 16px; position:fixed;
+  display:flex; flex-direction:column;
+}
+.logo { text-align:center; margin-bottom:28px; font-weight:700; font-size:1.2rem; }
+.logo span { color:#f5b8e8; }
+.sidebar ul { list-style:none; display:flex; flex-direction:column; gap:6px; flex:1; }
+.sidebar li {
+  padding:11px 16px; cursor:pointer; border-radius:8px;
+  font-weight:500; display:flex; align-items:center; gap:12px;
+  transition:0.15s; color:rgba(255,255,255,0.8);
+}
+.sidebar li:hover { background:rgba(255,255,255,0.08); color:white; }
+.sidebar li.active { background:var(--rose); color:white; }
+.sidebar li a { color:inherit; text-decoration:none; width:100%; }
+.sidebar li i { width:20px; text-align:center; font-size:14px; }
+.sidebar-bottom { border-top:1px solid rgba(255,255,255,0.1); padding-top:14px; }
+
+/* MAIN */
+.main { flex:1; margin-left:260px; padding:36px 40px 60px; }
+.page-header { margin-bottom:28px; }
+.page-header h1 { font-size:22px; font-weight:700; color:var(--primary); }
+.page-header p  { font-size:13px; color:var(--muted); margin-top:4px; }
+
+.profile-layout { display:grid; grid-template-columns:260px 1fr; gap:24px; align-items:start; }
+
+/* AVATAR CARD */
+.avatar-card {
+  background:var(--white); border:1px solid var(--border);
+  border-radius:14px; padding:28px 20px; text-align:center;
+}
+.avatar-ring {
+  width:90px; height:90px; border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--rose));
+  display:flex; align-items:center; justify-content:center;
+  font-size:34px; font-weight:800; color:white;
+  margin:0 auto 12px;
+}
+.avatar-name { font-size:16px; font-weight:700; color:var(--primary); margin-bottom:4px; }
+.avatar-role {
+  display:inline-block; font-size:11px; font-weight:700;
+  padding:3px 12px; border-radius:20px;
+  background:#f5eef7; color:var(--primary);
+  text-transform:uppercase; letter-spacing:0.4px; margin-bottom:14px;
+}
+.avatar-meta { font-size:12px; color:var(--muted); line-height:2.2; text-align:left; }
+.avatar-meta i { width:16px; color:var(--rose); margin-right:4px; }
+.divider { border:none; border-top:1px solid var(--border); margin:16px 0; }
+.status-row { display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; }
+.btn-danger {
+  width:100%; padding:9px; border-radius:8px;
+  background:none; border:1px solid #fecaca;
+  color:var(--red); font-size:12px; font-weight:600;
+  cursor:pointer; font-family:inherit; margin-top:10px;
+}
+.btn-danger:hover { background:#fff5f5; }
+
+/* CARDS */
+.form-stack { display:flex; flex-direction:column; gap:20px; }
+.card { background:var(--white); border:1px solid var(--border); border-radius:14px; padding:24px; }
+.card-title {
+  font-size:12px; font-weight:700; text-transform:uppercase;
+  letter-spacing:0.6px; color:var(--primary);
+  margin-bottom:18px; padding-bottom:10px;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.edit-toggle { font-size:12px; font-weight:600; color:var(--rose); cursor:pointer; text-transform:none; letter-spacing:0; }
+.edit-toggle:hover { text-decoration:underline; }
+
+.form-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+.field { }
+.field label { display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:5px; }
+.field input, .field select {
+  width:100%; padding:9px 12px;
+  border:1px solid var(--border); border-radius:7px;
+  font-size:14px; color:#201021; background:#fdfafb;
+  font-family:inherit; transition:border-color 0.15s;
+}
+.field input:focus, .field select:focus { outline:none; border-color:var(--rose); }
+.field input:disabled, .field select:disabled { background:#f8f5f9; color:var(--muted); cursor:default; }
+.field input[type=password] { letter-spacing:3px; font-size:18px; }
+
+.save-row { display:flex; justify-content:flex-end; margin-top:16px; gap:10px; }
+.btn-save {
+  padding:10px 24px; border:none; border-radius:8px;
+  background:var(--primary); color:white; font-size:14px;
+  font-weight:600; cursor:pointer; font-family:inherit; display:none;
+}
+.btn-save:hover { background:#3a0440; }
+.btn-save.visible { display:inline-block; }
+.btn-cancel {
+  padding:10px 18px; border:1px solid var(--border); border-radius:8px;
+  background:none; color:var(--muted); font-size:14px;
+  font-weight:600; cursor:pointer; font-family:inherit; display:none;
+}
+.btn-cancel:hover { background:var(--bg); }
+.btn-cancel.visible { display:inline-block; }
+
+/* loading skeleton */
+.skeleton {
+  height:38px; border-radius:7px;
+  background:linear-gradient(90deg,#f0e6f2 25%,#e8d8ec 50%,#f0e6f2 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.2s infinite;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+.toast {
+  position:fixed; bottom:24px; right:24px;
+  color:white; padding:12px 22px; border-radius:8px;
+  font-size:14px; font-weight:600; display:none; z-index:999;
+}
+
+/* delete confirm modal */
+.modal-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.4); z-index:9998;
+  align-items:center; justify-content:center;
+}
+.modal-overlay.open { display:flex; }
+.modal-box {
+  background:white; border-radius:14px; padding:32px;
+  width:380px; max-width:90vw; text-align:center;
+}
+.modal-box h3 { font-size:18px; font-weight:700; color:var(--red); margin-bottom:10px; }
+.modal-box p  { font-size:14px; color:var(--muted); margin-bottom:24px; line-height:1.6; }
+.modal-btns { display:flex; gap:12px; justify-content:center; }
+.btn-confirm-delete {
+  padding:11px 24px; background:var(--red); color:white;
+  border:none; border-radius:8px; font-size:14px;
+  font-weight:600; cursor:pointer; font-family:inherit;
+}
+.btn-confirm-delete:hover { background:#991b1b; }
+.btn-modal-cancel {
+  padding:11px 24px; background:none;
+  border:1px solid var(--border); border-radius:8px;
+  font-size:14px; font-weight:600; cursor:pointer;
+  font-family:inherit; color:var(--muted);
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">Afya<span>Mama</span> Admin</div>
+  <ul>
+    <li><i class="fas fa-chart-pie"></i><a href="admindashboard.html">Dashboard</a></li>
+    <li><i class="fas fa-users"></i><a href="adminusers.html">Users</a></li>
+    <li><i class="fas fa-file-alt"></i><a href="adminreport.html">Reports</a></li>
+    <li><i class="fas fa-bell"></i><a href="adminnotification.html">Notifications</a></li>
+    <li class="active"><i class="fas fa-user-circle"></i><a href="adminprofile.html">Profile</a></li>
+  </ul>
+  <div class="sidebar-bottom">
+    <ul><li><i class="fas fa-sign-out-alt"></i><a href="logout.html">Logout</a></li></ul>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="page-header">
+    <h1>My Profile</h1>
+    <p>Your administrator account — data loaded from Firebase</p>
+  </div>
+
+  <div class="profile-layout">
+
+    <!-- AVATAR CARD -->
+    <div>
+      <div class="avatar-card">
+        <div class="avatar-ring" id="avatar-initials">—</div>
+        <div class="avatar-name" id="avatar-name">Loading...</div>
+        <div class="avatar-role">System Administrator</div>
+        <div class="avatar-meta">
+          <div><i class="fas fa-envelope"></i><span id="meta-email">—</span></div>
+          <div><i class="fas fa-phone"></i><span id="meta-phone">—</span></div>
+          <div><i class="fas fa-calendar-alt"></i>Joined: <span id="meta-created">—</span></div>
+        </div>
+        <div class="divider"></div>
+        <div class="status-row"><span style="color:var(--muted);">Account status</span><span style="font-weight:700;color:#1a7f4e;">Active</span></div>
+        <div class="status-row"><span style="color:var(--muted);">Role</span><span style="font-weight:600;">Super Admin</span></div>
+        <div class="divider"></div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:8px;">Danger zone</div>
+        <button class="btn-danger" onclick="openDeleteModal()">
+          <i class="fas fa-user-slash"></i> Delete my account
+        </button>
+      </div>
+    </div>
+
+    <!-- FORM CARDS -->
+    <div class="form-stack">
+
+      <!-- PERSONAL INFO — UPDATE -->
+      <div class="card">
+        <div class="card-title">
+          Personal information
+          <span class="edit-toggle" onclick="toggleSection('personal')">Edit</span>
+        </div>
+        <div class="form-grid2" id="personal-fields">
+          <div class="field"><label>Full name</label><div class="skeleton" id="sk-name"></div><input type="text" id="p-name" style="display:none;" disabled></div>
+          <div class="field"><label>Email address</label><div class="skeleton" id="sk-email"></div><input type="email" id="p-email" style="display:none;" disabled></div>
+          <div class="field"><label>Phone number</label><div class="skeleton" id="sk-phone"></div><input type="text" id="p-phone" style="display:none;" disabled></div>
+          <div class="field"><label>Account created</label><div class="skeleton" id="sk-created"></div><input type="text" id="p-created" style="display:none;" disabled readonly></div>
+        </div>
+        <div class="save-row">
+          <button class="btn-cancel" id="personal-cancel" onclick="cancelSection('personal')">Cancel</button>
+          <button class="btn-save"   id="personal-save"   onclick="savePersonal()">Save changes</button>
+        </div>
+      </div>
+
+      <!-- CHANGE PASSWORD -->
+      <div class="card">
+        <div class="card-title">
+          Change password
+          <span class="edit-toggle" onclick="toggleSection('security')">Edit</span>
+        </div>
+        <div class="form-grid2">
+          <div class="field"><label>New password</label><input type="password" id="s-new" placeholder="Min 8 characters" disabled></div>
+          <div class="field"><label>Confirm new password</label><input type="password" id="s-confirm" placeholder="Repeat password" disabled></div>
+        </div>
+        <div style="background:#fdf9fe;border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-size:12px;color:var(--muted);margin-top:12px;">
+          <i class="fas fa-shield-alt" style="color:var(--rose);margin-right:6px;"></i>
+          Password must be at least 8 characters and contain a number and a capital letter.
+        </div>
+        <div class="save-row">
+          <button class="btn-cancel" id="security-cancel" onclick="cancelSection('security')">Cancel</button>
+          <button class="btn-save"   id="security-save"   onclick="savePassword()">Update password</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <h3>Delete account?</h3>
+    <p>This will permanently delete your admin account and all associated data from Firebase. This action cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn-confirm-delete" onclick="deleteAccount()">Yes, delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE SDK -->
+<script type="module">
+import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged,
+         updatePassword, deleteUser }             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc,
+         getDoc, updateDoc, deleteDoc }           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ── YOUR FIREBASE CONFIG ─────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyDdkxqgxqInhIG-L0v7H_LJeqjAEap4B1s",
+  authDomain: "afyamama-5cbaf.firebaseapp.com",
+  projectId: "afyamama-5cbaf",
+  storageBucket: "afyamama-5cbaf.firebasestorage.app",
+  messagingSenderId: "973201830551",
+  appId: "1:973201830551:web:04db5011ab139f4d16efd2",
+  measurementId: "G-K6321ZYT7N"
+};
+import { onAuthStateChanged } from "firebase-auth.js";
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  window._currentUser = user; 
+  loadProfile(user.email);
+});
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── HELPERS ──────────────────────────────────
+function formatDate(ts){
+  if(!ts) return "—";
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString("en-KE",{ day:"numeric", month:"long", year:"numeric" });
+}
+
+function initials(name){
+  if(!name) return "?";
+  return name.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2);
+}
+
+function showSkeleton(show){
+  ["sk-name","sk-email","sk-phone","sk-created"].forEach(id=>{
+    document.getElementById(id).style.display = show ? "block" : "none";
+  });
+  ["p-name","p-email","p-phone","p-created"].forEach(id=>{
+    document.getElementById(id).style.display = show ? "none" : "block";
+  });
+}
+
+// ── LOAD PROFILE FROM FIREBASE ───────────────
+import {
+  collection,
+  query,
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+function loadProfile(userEmail){
+
+  const q = query(
+    collection(db, "Admins"),
+    where("email", "==", userEmail)
+  );
+
+  getDocs(q).then(snapshot => {
+
+    if(snapshot.empty){
+      showToast("Profile not found","#b91c1c");
+      return;
+    }
+
+    const adminDoc = snapshot.docs[0];
+
+window.adminDocId = adminDoc.id;
+
+const data = adminDoc.data();
+
+    document.getElementById("p-name").value = data.fullName || "";
+    document.getElementById("p-email").value = data.email || "";
+    document.getElementById("p-phone").value = data.phone || "";
+    document.getElementById("p-created").value = formatDate(data.createdAt);
+
+    document.getElementById("avatar-name").textContent = data.fullName;
+    document.getElementById("avatar-initials").textContent = initials(data.fullName);
+    document.getElementById("meta-email").textContent = data.email;
+    document.getElementById("meta-phone").textContent = data.phone;
+    document.getElementById("meta-created").textContent = formatDate(data.createdAt);
+
+    showSkeleton(false);
+  });
+}
+// ── AUTH STATE — get current admin ───────────
+
+const email = localStorage.getItem("adminEmail");
+
+if (!email) {
+  window.location.href = "login.html";
+} else {
+  loadProfile(email);
+}
+
+// ── UPDATE PERSONAL INFO (UPDATE) ────────────
+window.savePersonal = function(){
+  const uid   = window._currentUser?.uid;
+  if(!uid){ showToast("Not authenticated","#b91c1c"); return; }
+
+  const name  = document.getElementById("p-name").value.trim();
+  const email = document.getElementById("p-email").value.trim();
+  const phone = document.getElementById("p-phone").value.trim();
+
+  if(!name || !email || !phone){
+    showToast("All fields are required","#b91c1c"); return;
+  }
+
+  updateDoc(doc(db,"Admins", docId), {
+  fullName: name,
+  email: email,
+  phone: phone
+})
+  .then(() => {
+    document.getElementById("avatar-name").textContent     = name;
+    document.getElementById("avatar-initials").textContent = initials(name);
+    document.getElementById("meta-email").textContent      = email;
+    document.getElementById("meta-phone").textContent      = phone;
+    cancelSection("personal");
+    showToast("Profile updated successfully","#1a7f4e");
+  }).catch(err => {
+    showToast("Update failed: " + err.message,"#b91c1c");
+  });
+};
+
+// ── CHANGE PASSWORD (UPDATE) ─────────────────
+window.savePassword = function(){
+  const np = document.getElementById("s-new").value;
+  const cp = document.getElementById("s-confirm").value;
+
+  if(!np || !cp){ showToast("Please fill both password fields","#b91c1c"); return; }
+  if(np !== cp) { showToast("Passwords do not match","#b91c1c"); return; }
+  if(np.length < 8){ showToast("Password must be at least 8 characters","#b91c1c"); return; }
+
+  updatePassword(window._currentUser, np).then(() => {
+    document.getElementById("s-new").value     = "";
+    document.getElementById("s-confirm").value = "";
+    cancelSection("security");
+    showToast("Password updated successfully","#1a7f4e");
+  }).catch(err => {
+    showToast("Password update failed: " + err.message,"#b91c1c");
+  });
+};
+
+// ── DELETE ACCOUNT (DELETE) ──────────────────
+window.deleteAccount = function(){
+  const docId = window.adminDocId;
+if (!docId) {
+  showToast("Profile not loaded","#b91c1c");
+  return;
+}
+
+  // Delete Firestore document first, then Auth user
+  deleteDoc(doc(db,"Admins", docId)).then(() => {
+    return deleteUser(window._currentUser);
+  }).then(() => {
+    showToast("Account deleted","#b91c1c");
+    setTimeout(() => { window.location.href = "login.html"; }, 1500);
+  }).catch(err => {
+    showToast("Deletion failed: " + err.message,"#b91c1c");
+    closeDeleteModal();
+  });
+};
+
+// expose toast globally
+window._showToast = showToast;
+
+function showToast(msg, color){
+  const t = document.getElementById("toast");
+  t.textContent  = (color==="#b91c1c" ? "✗ " : "✓ ") + msg;
+  t.style.background = color || "#1a7f4e";
+  t.style.display    = "block";
+  setTimeout(()=>{ t.style.display = "none"; }, 3500);
+}
+</script>
+
+<script>
+// ── NON-FIREBASE UI HELPERS ──────────────────
+function toggleSection(section){
+  getSectionInputs(section).forEach(el => { if(el && el.id !== "p-created") el.disabled = false; });
+  document.getElementById(section+"-save").classList.add("visible");
+  document.getElementById(section+"-cancel").classList.add("visible");
+}
+
+function cancelSection(section){
+  getSectionInputs(section).forEach(el => { if(el) el.disabled = true; });
+  document.getElementById(section+"-save").classList.remove("visible");
+  document.getElementById(section+"-cancel").classList.remove("visible");
+}
+
+function getSectionInputs(section){
+  const map = {
+    personal: ["p-name","p-email","p-phone","p-created"],
+    security: ["s-new","s-confirm"]
+  };
+  return (map[section]||[]).map(id => document.getElementById(id));
+}
+
+function openDeleteModal(){
+  document.getElementById("deleteModal").classList.add("open");
+}
+
+function closeDeleteModal(){
+  document.getElementById("deleteModal").classList.remove("open");
+}
+
+function showToast(msg, color){
+  if(window._showToast){ window._showToast(msg, color); return; }
+  alert(msg);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>System Reports - AfyaMama</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --primary: #55075c;
+      --pink: #c9227a;
+      --bg: #f5f6f8;
+      --white: #ffffff;
+      --muted: #736275;
+      --border: #ebd6ed;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { display: flex; background: var(--bg); min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px; height: 100vh; background: var(--primary);
+      color: white; padding: 24px 14px; position: fixed;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .logo { font-weight: 600; font-size: 1.1rem; padding: 0 8px 18px; border-bottom: 1px solid rgba(255,255,255,0.12); margin-bottom: 8px; }
+    .sidebar nav { display: flex; flex-direction: column; gap: 3px; }
+    .sidebar nav a {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-radius: 8px; color: rgba(255,255,255,0.78); text-decoration: none;
+      font-size: 0.9rem; transition: background 0.15s;
+    }
+    .sidebar nav a:hover { background: rgba(255,255,255,0.1); }
+    .sidebar nav a.active { background: var(--pink); color: white; }
+    .sidebar nav a i { width: 18px; text-align: center; }
+    .sidebar .logout { margin-top: auto; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.12); }
+
+    /* ── Main ── */
+    .main { flex: 1; margin-left: 240px; padding: 36px 32px; }
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 600; color: var(--primary); }
+    .page-header p { font-size: 0.88rem; color: var(--muted); margin-top: 3px; }
+
+    /* ── Stat bar ── */
+    .stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 26px; }
+    .stat-card {
+      background: var(--white); border-radius: 14px; padding: 18px 20px;
+      border: 1px solid var(--border); position: relative; overflow: hidden;
+    }
+    .stat-card .s-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; }
+    .stat-card .s-val { font-size: 1.75rem; font-weight: 700; color: var(--primary); }
+    .stat-card .s-icon {
+      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+      font-size: 2rem; opacity: 0.08; color: var(--primary);
+    }
+    .stat-card.loading .s-val { color: #ccc; }
+
+    /* ── Report cards ── */
+    .report-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 16px; }
+    .report-card {
+      background: var(--white); border: 1px solid var(--border); border-left: 4px solid var(--primary);
+      border-radius: 14px; padding: 22px 20px; cursor: pointer; transition: 0.2s;
+    }
+    .report-card:hover { border-color: var(--pink); transform: translateY(-3px); box-shadow: 0 6px 20px rgba(85,7,92,0.08); }
+    .report-card i { font-size: 1.5rem; color: var(--primary); margin-bottom: 10px; display: block; }
+    .report-card h3 { font-size: 1rem; font-weight: 600; color: var(--primary); margin-bottom: 4px; }
+    .report-card p { font-size: 0.8rem; color: var(--muted); }
+
+    /* ── Detail view ── */
+    #detail-view { display: none; }
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: none; border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px 16px; font-size: 0.85rem; color: var(--muted); cursor: pointer;
+      margin-bottom: 20px; transition: background 0.15s;
+    }
+    .btn-back:hover { background: #f0e6f2; }
+    .detail-title { font-size: 1.3rem; font-weight: 600; color: var(--primary); margin-bottom: 20px; }
+
+    /* metric pills */
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 12px; margin-bottom: 28px; }
+    .metric-card {
+      background: #faf8fb; border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+    }
+    .metric-card .m-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+    .metric-card .m-val { font-size: 1.4rem; font-weight: 700; color: var(--primary); }
+
+    /* chart */
+    .chart-wrap {
+      background: var(--white); border: 1px solid var(--border); border-radius: 14px;
+      padding: 24px; margin-bottom: 24px;
+    }
+    .chart-wrap h4 { font-size: 0.95rem; font-weight: 600; color: var(--primary); margin-bottom: 16px; }
+    .chart-wrap canvas { max-height: 280px; }
+
+    .btn-download {
+      width: 100%; padding: 14px; background: var(--primary); color: white;
+      border: none; border-radius: 25px; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn-download:hover { background: #43034a; }
+
+    /* loading spinner */
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #ccc; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-msg { color: var(--muted); font-size: 0.88rem; display: flex; align-items: center; gap: 8px; padding: 20px 0; }
+  </style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<div class="sidebar">
+  <div class="logo">🌸 AfyaMama Admin</div>
+  <nav>
+    <a href="admindashboard.html"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+    <a href="adminusers.html"><i class="fa-solid fa-users"></i> Users</a>
+    <a href="adminreport.html" class="active"><i class="fa-solid fa-file-chart-column"></i> Reports</a>
+    <a href="adminnotification.html"><i class="fa-solid fa-bell"></i> Notifications</a>
+    <a href="adminprofile.html"><i class="fa-solid fa-user-circle"></i> Profile</a>
+  </nav>
+  <div class="logout">
+    <nav><a href="logout.html"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></nav>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+  <!-- Grid view -->
+  <div id="grid-view">
+    <div class="page-header">
+      <h1>System Reports</h1>
+      <p>Live data from Firestore — updated on page load</p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card" id="stat-mothers">
+        <div class="s-label">Total Mothers</div>
+        <div class="s-val" id="count-mothers">—</div>
+        <i class="fa-solid fa-person-pregnant s-icon"></i>
+      </div>
+      <div class="stat-card" id="stat-children">
+        <div class="s-label">Total Children</div>
+        <div class="s-val" id="count-children">—</div>
+        <i class="fa-solid fa-baby s-icon"></i>
+      </div>
+      <div class="stat-card" id="stat-appointments">
+        <div class="s-label">Appointments</div>
+        <div class="s-val" id="count-appointments">—</div>
+        <i class="fa-solid fa-calendar-check s-icon"></i>
+      </div>
+      <div class="stat-card" id="stat-immunizations">
+        <div class="s-label">Immunizations</div>
+        <div class="s-val" id="count-immunizations">—</div>
+        <i class="fa-solid fa-syringe s-icon"></i>
+      </div>
+    </div>
+
+    <div class="report-grid">
+      <div class="report-card" onclick="openReport('mothers')">
+        <i class="fa-solid fa-person-pregnant"></i>
+        <h3>Maternal Health</h3>
+        <p>Registrations, ANC visits, risk flags</p>
+      </div>
+      <div class="report-card" onclick="openReport('children')">
+        <i class="fa-solid fa-baby"></i>
+        <h3>Child Health</h3>
+        <p>Growth monitoring & nutrition</p>
+      </div>
+      <div class="report-card" onclick="openReport('immunizations')">
+        <i class="fa-solid fa-syringe"></i>
+        <h3>Immunization</h3>
+        <p>Vaccines administered & schedules</p>
+      </div>
+      <div class="report-card" onclick="openReport('appointments')">
+        <i class="fa-solid fa-calendar-check"></i>
+        <h3>Appointments</h3>
+        <p>ANC & PNC visit summaries</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail view -->
+  <div id="detail-view">
+    <button class="btn-back" onclick="backToGrid()">← Back to Reports</button>
+    <div class="detail-title" id="detail-title">Report</div>
+    <div class="metric-grid" id="metric-grid"></div>
+    <div class="chart-wrap">
+      <h4 id="chart-title">Monthly count</h4>
+      <canvas id="bar-chart"></canvas>
+    </div>
+    <button class="btn-download" onclick="alert('PDF download coming soon!')">
+      <i class="fa-solid fa-download"></i> Download Full PDF Report
+    </button>
+  </div>
+
+</div>
+
+<!-- ══ FIREBASE + APP SCRIPT ══ -->
+<script type="module">
+  // ─────────────────────────────────────────────
+  // 🔧 REPLACE THIS WITH YOUR FIREBASE CONFIG
+  // ─────────────────────────────────────────────
+  const firebaseConfig = {
+    apiKey: "AIzaSyDdkxqgxqInhIG-L0v7H_LJeqjAEap4B1s",
+  authDomain: "afyamama-5cbaf.firebaseapp.com",
+  projectId: "afyamama-5cbaf",
+  storageBucket: "afyamama-5cbaf.firebasestorage.app",
+  messagingSenderId: "973201830551",
+  appId: "1:973201830551:web:04db5011ab139f4d16efd2",
+  measurementId: "G-K6321ZYT7N"
+  };
+  // ─────────────────────────────────────────────
+
+  import { initializeApp }           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // ── Collection names ──────────────────────────
+  const COLLECTIONS = {
+    mothers:        "mothers",
+    children:       "children",
+    appointments:   "appointments",
+    immunizations:  "immunizations"
+  };
+
+  // ── Month labels ──────────────────────────────
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  // ── Fetch all docs from a collection ─────────
+  async function fetchAll(colName) {
+    const snap = await getDocs(collection(db, colName));
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  // ── Detect which date field a doc has ────────
+  function getDate(doc) {
+    // adjust field names to match your Firestore schema
+    const raw = doc.createdAt || doc.date || doc.registeredAt || doc.appointmentDate || doc.vaccinationDate || null;
+    if (!raw) return null;
+    if (raw.toDate) return raw.toDate();          // Firestore Timestamp
+    return new Date(raw);                          // ISO string / millis
+  }
+
+  // ── Bucket docs by month for current year ────
+  function byMonth(docs) {
+    const year   = new Date().getFullYear();
+    const counts = new Array(12).fill(0);
+    docs.forEach(doc => {
+      const d = getDate(doc);
+      if (d && d.getFullYear() === year) counts[d.getMonth()]++;
+    });
+    return counts;
+  }
+
+  // ── Render summary counts ─────────────────────
+  async function loadSummaryCounts() {
+    for (const [key, colName] of Object.entries(COLLECTIONS)) {
+      try {
+        const docs = await fetchAll(colName);
+        document.getElementById(`count-${key}`).textContent = docs.length.toLocaleString();
+      } catch (e) {
+        document.getElementById(`count-${key}`).textContent = "Error";
+        console.error(`Failed to load ${colName}:`, e);
+      }
+    }
+  }
+
+  // ── Report configs: labels + metric extractors ─
+  const REPORTS = {
+    mothers: {
+      title: "Maternal Health Report",
+      chartLabel: "Mothers registered per month",
+      metrics: (docs) => [
+        { label: "Total registered",        val: docs.length },
+        { label: "Active pregnancies",       val: docs.filter(d => d.status === "active" || d.pregnancyStatus === "active").length },
+        { label: "High-risk flagged",        val: docs.filter(d => d.risk === "high" || d.riskLevel === "high").length },
+        { label: "ANC visits completed",     val: docs.filter(d => d.ancCompleted).length },
+      ]
+    },
+    children: {
+      title: "Child Health Report",
+      chartLabel: "Children registered per month",
+      metrics: (docs) => [
+        { label: "Total registered",         val: docs.length },
+        { label: "Growth monitoring done",   val: docs.filter(d => d.growthMonitored).length },
+        { label: "Underweight cases",        val: docs.filter(d => d.nutritionStatus === "underweight").length },
+        { label: "Normal growth",            val: docs.filter(d => d.nutritionStatus === "normal").length },
+      ]
+    },
+    immunizations: {
+      title: "Immunization Report",
+      chartLabel: "Vaccines administered per month",
+      metrics: (docs) => [
+        { label: "Total administered",       val: docs.length },
+        { label: "Fully immunized",          val: docs.filter(d => d.status === "complete" || d.fullyImmunized).length },
+        { label: "Upcoming scheduled",       val: docs.filter(d => d.status === "scheduled").length },
+        { label: "Missed / overdue",         val: docs.filter(d => d.status === "missed" || d.status === "overdue").length },
+      ]
+    },
+    appointments: {
+      title: "Appointments Report",
+      chartLabel: "Appointments per month",
+      metrics: (docs) => [
+        { label: "Total appointments",       val: docs.length },
+        { label: "ANC visits",               val: docs.filter(d => d.type === "ANC").length },
+        { label: "PNC visits",               val: docs.filter(d => d.type === "PNC").length },
+        { label: "Missed / cancelled",       val: docs.filter(d => d.status === "missed" || d.status === "cancelled").length },
+      ]
+    }
+  };
+
+  // ── Chart instance (keep reference to destroy on re-render) ──
+  let chartInstance = null;
+
+  // ── Open detail view ──────────────────────────
+  window.openReport = async function(key) {
+    const config = REPORTS[key];
+    document.getElementById("grid-view").style.display  = "none";
+    document.getElementById("detail-view").style.display = "block";
+    document.getElementById("detail-title").textContent  = config.title;
+    document.getElementById("chart-title").textContent   = config.chartLabel;
+
+    // Show loading state
+    document.getElementById("metric-grid").innerHTML =
+      `<div class="loading-msg"><span class="spinner"></span> Loading data…</div>`;
+
+    try {
+      const docs    = await fetchAll(COLLECTIONS[key]);
+      const metrics = config.metrics(docs);
+      const monthly = byMonth(docs);
+
+      // Metric cards
+      document.getElementById("metric-grid").innerHTML = metrics.map(m => `
+        <div class="metric-card">
+          <div class="m-label">${m.label}</div>
+          <div class="m-val">${m.val.toLocaleString()}</div>
+        </div>
+      `).join("");
+
+      // Bar chart
+      if (chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(document.getElementById("bar-chart"), {
+        type: "bar",
+        data: {
+          labels: MONTHS,
+          datasets: [{
+            label: config.chartLabel,
+            data: monthly,
+            backgroundColor: "rgba(85,7,92,0.75)",
+            borderRadius: 6,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0 },
+              grid: { color: "rgba(0,0,0,0.05)" }
+            },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+
+    } catch (e) {
+      document.getElementById("metric-grid").innerHTML =
+        `<p style="color:red;font-size:0.85rem;">Failed to load data: ${e.message}</p>`;
+      console.error(e);
+    }
+  };
+
+  // ── Back to grid ──────────────────────────────
+  window.backToGrid = function() {
+    document.getElementById("detail-view").style.display = "none";
+    document.getElementById("grid-view").style.display   = "block";
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  };
+
+  // ── Boot ──────────────────────────────────────
+  loadSummaryCounts();
+</script>
+
+</body>
+</html>

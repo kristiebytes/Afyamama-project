@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Management - AfyaMama</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary: #55075c;
+  --rose:    #c9227a;
+  --bg:      #f5f6f8;
+  --white:   #ffffff;
+  --border:  #ebd6ed;
+  --muted:   #736275;
+  --green:   #1a7f4e;
+  --red:     #b91c1c;
+  --amber:   #b45309;
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+body { display:flex; background:var(--bg); color:#201021; min-height:100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width:260px; height:100vh; background:var(--primary);
+  color:white; padding:24px 16px; position:fixed;
+  display:flex; flex-direction:column;
+}
+.logo { text-align:center; margin-bottom:28px; font-weight:700; font-size:1.2rem; }
+.logo span { color:#f5b8e8; }
+.sidebar ul { list-style:none; display:flex; flex-direction:column; gap:6px; flex:1; }
+.sidebar li {
+  padding:11px 16px; cursor:pointer; border-radius:8px;
+  font-weight:500; display:flex; align-items:center; gap:12px;
+  transition:0.15s; color:rgba(255,255,255,0.8);
+}
+.sidebar li:hover { background:rgba(255,255,255,0.08); color:white; }
+.sidebar li.active { background:var(--rose); color:white; }
+.sidebar li a { color:inherit; text-decoration:none; width:100%; }
+.sidebar li i { width:20px; text-align:center; font-size:14px; }
+.sidebar-bottom { border-top:1px solid rgba(255,255,255,0.1); padding-top:14px; }
+
+/* MAIN */
+.main { flex:1; margin-left:260px; padding:36px 40px 60px; }
+.page-header { margin-bottom:28px; }
+.page-header h1 { font-size:22px; font-weight:700; color:var(--primary); }
+.page-header p  { font-size:13px; color:var(--muted); margin-top:4px; }
+
+/* SELECTION CARDS */
+.selection-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:600px; margin:auto; }
+.role-card {
+  background:var(--white); border:1px solid var(--border);
+  border-radius:16px; padding:36px 24px; cursor:pointer;
+  text-align:center; transition:all 0.2s; position:relative; overflow:hidden;
+}
+.role-card::before {
+  content:""; position:absolute; top:0; left:0;
+  width:100%; height:4px;
+}
+.role-card.mothers::before { background:var(--rose); }
+.role-card.doctors::before { background:var(--primary); }
+.role-card:hover { transform:translateY(-4px); box-shadow:0 10px 28px rgba(85,7,92,0.12); }
+.role-icon { font-size:48px; margin-bottom:14px; }
+.role-card h3 { font-size:18px; font-weight:700; color:var(--primary); margin-bottom:6px; }
+.role-card p  { font-size:13px; color:var(--muted); }
+.role-count {
+  display:inline-block; margin-top:12px;
+  background:#f5eef7; color:var(--primary);
+  font-size:13px; font-weight:700;
+  padding:4px 14px; border-radius:20px;
+}
+
+/* LIST VIEW */
+#list-view { display:none; }
+
+.list-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:24px; flex-wrap:wrap; gap:12px;
+}
+.list-header-left { display:flex; align-items:center; gap:14px; }
+.btn-back {
+  background:var(--white); border:1px solid var(--border);
+  color:var(--primary); padding:9px 18px; border-radius:8px;
+  cursor:pointer; font-size:14px; font-weight:600;
+  font-family:inherit; display:flex; align-items:center; gap:8px;
+}
+.btn-back:hover { background:var(--bg); }
+.list-title { font-size:20px; font-weight:700; color:var(--primary); }
+
+.search-bar {
+  display:flex; align-items:center; gap:10px;
+  background:var(--white); border:1px solid var(--border);
+  border-radius:8px; padding:8px 14px; width:260px;
+}
+.search-bar i { color:var(--muted); font-size:13px; }
+.search-bar input {
+  border:none; outline:none; font-size:14px;
+  color:#201021; background:none; width:100%;
+  font-family:inherit;
+}
+
+/* STATS ROW */
+.stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px; }
+.stat-mini {
+  background:var(--white); border:1px solid var(--border);
+  border-radius:10px; padding:16px 18px;
+  display:flex; align-items:center; gap:12px;
+}
+.stat-mini-icon { font-size:20px; }
+.stat-mini-val { font-size:22px; font-weight:800; color:var(--primary); line-height:1; }
+.stat-mini-lbl { font-size:12px; color:var(--muted); margin-top:2px; }
+
+/* TABLE */
+.table-card { background:var(--white); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.data-table { width:100%; border-collapse:collapse; font-size:13px; }
+.data-table th {
+  text-align:left; padding:12px 16px;
+  font-size:11px; font-weight:700; text-transform:uppercase;
+  letter-spacing:0.5px; color:var(--muted);
+  background:#faf7fb; border-bottom:1px solid var(--border);
+}
+.data-table td { padding:13px 16px; border-bottom:1px solid #f5f5f5; color:#374151; vertical-align:middle; }
+.data-table tr:last-child td { border-bottom:none; }
+.data-table tr:hover td { background:#fdf9fe; }
+
+.user-cell { display:flex; align-items:center; gap:10px; }
+.user-avatar {
+  width:34px; height:34px; border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--rose));
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; color:white; flex-shrink:0;
+}
+.user-name { font-weight:600; color:#1a1a2e; font-size:14px; }
+.user-id   { font-size:11px; color:var(--muted); margin-top:1px; }
+
+.badge {
+  display:inline-block; font-size:11px; font-weight:700;
+  padding:2px 10px; border-radius:20px; white-space:nowrap;
+}
+.badge-green  { background:#dcfce7; color:#15803d; }
+.badge-amber  { background:#fef3c7; color:#b45309; }
+.badge-red    { background:#fee2e2; color:#b91c1c; }
+.badge-blue   { background:#dbeafe; color:#1d4ed8; }
+
+.action-btns { display:flex; gap:6px; }
+.btn-icon {
+  width:30px; height:30px; border-radius:6px; border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:12px; background:var(--white);
+  transition:all 0.15s;
+}
+.btn-icon:hover { border-color:var(--rose); color:var(--rose); }
+.btn-icon.del:hover { border-color:var(--red); color:var(--red); background:#fff5f5; }
+
+.empty-state { text-align:center; padding:40px; color:var(--muted); font-size:14px; }
+.empty-state i { font-size:36px; display:block; margin-bottom:12px; opacity:0.4; }
+
+/* skeleton */
+.skeleton-row td { padding:13px 16px; }
+.skel {
+  height:20px; border-radius:5px;
+  background:linear-gradient(90deg,#f0e6f2 25%,#e8d8ec 50%,#f0e6f2 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.2s infinite;
+}
+@keyframes shimmer { 0%{background-position:200% 0}100%{background-position:-200% 0} }
+
+/* MODAL */
+.modal-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.4); z-index:9998;
+  align-items:center; justify-content:center;
+}
+.modal-overlay.open { display:flex; }
+.modal-box {
+  background:white; border-radius:14px; padding:32px;
+  width:420px; max-width:90vw;
+}
+.modal-box h3 { font-size:17px; font-weight:700; color:var(--primary); margin-bottom:18px; }
+.field { margin-bottom:14px; }
+.field label { display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:5px; }
+.field input, .field select {
+  width:100%; padding:9px 12px; border:1px solid var(--border);
+  border-radius:7px; font-size:14px; color:#201021;
+  background:#fdfafb; font-family:inherit;
+}
+.field input:focus, .field select:focus { outline:none; border-color:var(--rose); }
+.modal-btns { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
+.btn-primary {
+  padding:10px 22px; background:var(--primary); color:white;
+  border:none; border-radius:8px; font-size:14px; font-weight:600;
+  cursor:pointer; font-family:inherit;
+}
+.btn-primary:hover { background:#3a0440; }
+.btn-secondary {
+  padding:10px 18px; background:none; border:1px solid var(--border);
+  border-radius:8px; font-size:14px; font-weight:600;
+  cursor:pointer; font-family:inherit; color:var(--muted);
+}
+
+/* delete confirm */
+.modal-box.danger h3 { color:var(--red); }
+.btn-del { padding:10px 22px; background:var(--red); color:white; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+.btn-del:hover { background:#991b1b; }
+
+.toast {
+  position:fixed; bottom:24px; right:24px;
+  color:white; padding:12px 22px; border-radius:8px;
+  font-size:14px; font-weight:600; display:none; z-index:9999;
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">Afya<span>Mama</span> Admin</div>
+  <ul>
+    <li><i class="fas fa-chart-pie"></i><a href="admindashboard.html">Dashboard</a></li>
+    <li class="active"><i class="fas fa-users"></i><a href="adminusers.html">Users</a></li>
+    <li><i class="fas fa-file-alt"></i><a href="adminreport.html">Reports</a></li>
+    <li><i class="fas fa-bell"></i><a href="adminnotification.html">Notifications</a></li>
+    <li><i class="fas fa-user-circle"></i><a href="adminprofile.html">Profile</a></li>
+  </ul>
+  <div class="sidebar-bottom">
+    <ul><li><i class="fas fa-sign-out-alt"></i><a href="logout.html">Logout</a></li></ul>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SELECTION VIEW -->
+  <div id="selection-view">
+    <div class="page-header">
+      <h1>User Management</h1>
+      <p>Select a user group to view, manage and update records from Firebase</p>
+    </div>
+    <div class="selection-grid">
+      <div class="role-card mothers" onclick="loadUsers('mothers')">
+        <div class="role-icon">👩‍🍼</div>
+        <h3>Mothers</h3>
+        <p>Registered mothers and their health profiles</p>
+        <div class="role-count" id="count-mothers">Loading...</div>
+      </div>
+      <div class="role-card doctors" onclick="loadUsers('doctors')">
+        <div class="role-icon">👨‍⚕️</div>
+        <h3>Doctors</h3>
+        <p>Healthcare providers and facility staff</p>
+        <div class="role-count" id="count-doctors">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST VIEW -->
+  <div id="list-view">
+    <div class="list-header">
+      <div class="list-header-left">
+        <button class="btn-back" onclick="backToSelection()"><i class="fas fa-arrow-left"></i> Back</button>
+        <div class="list-title" id="list-title">Users</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" id="search-input" placeholder="Search by name or email..." oninput="filterTable()">
+        </div>
+        <button class="btn-primary" onclick="openAddModal()" style="padding:9px 18px;font-size:13px;">
+          <i class="fas fa-plus"></i> Add user
+        </button>
+      </div>
+    </div>
+
+    <div class="stats-row" id="stats-row"></div>
+
+    <div class="table-card">
+      <table class="data-table">
+        <thead id="table-head"></thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal-box">
+    <h3 id="modal-title">Add user</h3>
+    <div class="field"><label>Full name</label><input type="text" id="m-name" placeholder="Full name"></div>
+    <div class="field"><label>Email</label><input type="email" id="m-email" placeholder="email@example.com"></div>
+    <div class="field"><label>Phone</label><input type="text" id="m-phone" placeholder="+254 7XX XXX XXX"></div>
+    <div id="m-doctor-fields" style="display:none;">
+      <div class="field"><label>Facility name</label><input type="text" id="m-facility" placeholder="e.g. KNH"></div>
+      <div class="field"><label>County</label><input type="text" id="m-county" placeholder="e.g. Nairobi"></div>
+    </div>
+    <div class="field"><label>Status</label>
+      <select id="m-status">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('userModal')">Cancel</button>
+      <button class="btn-primary" onclick="saveUser()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box danger">
+    <h3>Delete user?</h3>
+    <p id="delete-msg" style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.6;"></p>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('deleteModal')">Cancel</button>
+      <button class="btn-del" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp }          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged }
+                                  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore,
+         collection, getDocs,
+         doc, getDoc, addDoc,
+         updateDoc, deleteDoc,
+         serverTimestamp, query,
+         orderBy }                from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ── YOUR FIREBASE CONFIG ─────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyDdkxqgxqInhIG-L0v7H_LJeqjAEap4B1s",
+  authDomain: "afyamama-5cbaf.firebaseapp.com",
+  projectId: "afyamama-5cbaf",
+  storageBucket: "afyamama-5cbaf.firebasestorage.app",
+  messagingSenderId: "973201830551",
+  appId: "1:973201830551:web:04db5011ab139f4d16efd2",
+  measurementId: "G-K6321ZYT7N"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── STATE ─────────────────────────────────────
+let currentCollection = "";
+let allUsers          = [];
+let editingId         = null;
+let deletingId        = null;
+
+// ── AUTH GUARD ───────────────────────────────
+const adminEmail = localStorage.getItem("adminEmail");
+
+if (!adminEmail) {
+  window.location.href = "login.html";
+} else {
+  loadCounts();
+}
+
+// ── LOAD COUNTS FOR SELECTION CARDS ──────────
+async function loadCounts(){
+  try {
+    const mSnap = await getDocs(collection(db,"mothers"));
+    const dSnap = await getDocs(collection(db,"fdoctors"));
+    document.getElementById("count-mothers").textContent = mSnap.size + " registered";
+    document.getElementById("count-doctors").textContent = dSnap.size + " registered";
+  } catch(e){
+    document.getElementById("count-mothers").textContent = "—";
+    document.getElementById("count-doctors").textContent = "—";
+  }
+}
+
+// ── LOAD USERS FROM FIREBASE (READ) ──────────
+window.loadUsers = async function(col){
+  currentCollection = col;
+  document.getElementById("selection-view").style.display = "none";
+  document.getElementById("list-view").style.display      = "block";
+  document.getElementById("list-title").textContent       = col === "mothers" ? "Mothers" : "Doctors";
+  document.getElementById("m-doctor-fields").style.display = col === "doctors" ? "block" : "none";
+
+  renderSkeletons();
+
+  try {
+    const dbCol  = col === "mothers" ? "mothers" : "doctors";
+    const q      = query(collection(db, dbCol), orderBy("createdAt","desc"));
+    const snap   = await getDocs(q);
+    allUsers     = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    renderTable(allUsers);
+    renderStats(allUsers, col);
+  } catch(e){
+    showToast("Failed to load users: "+e.message,"#b91c1c");
+    document.getElementById("table-body").innerHTML =
+      `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-exclamation-circle"></i>Could not load data from Firebase.</div></td></tr>`;
+  }
+};
+
+// ── RENDER TABLE ─────────────────────────────
+function renderTable(users){
+  const isMothers = currentCollection === "mothers";
+  const head = isMothers
+    ? `<tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Status</th><th>Actions</th></tr>`
+    : `<tr><th>Name</th><th>Email</th><th>Phone</th><th>Facility</th><th>Status</th><th>Actions</th></tr>`;
+  document.getElementById("table-head").innerHTML = head;
+
+  if(!users.length){
+    document.getElementById("table-body").innerHTML =
+      `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-users-slash"></i>No users found.</div></td></tr>`;
+    return;
+  }
+
+  document.getElementById("table-body").innerHTML = users.map(u => {
+    const initials = (u.fullName||u.name||"?").split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2);
+    const name     = u.fullName || u.name || "—";
+    const email    = u.email    || "—";
+    const phone    = u.phone || u.phone_number || "—";
+    const status   = u.status || u.is_active === false ? "inactive" : "active";
+    const joined   = u.createdAt?.toDate ? u.createdAt.toDate().toLocaleDateString("en-KE",{day:"numeric",month:"short",year:"numeric"}) : "—";
+    const extra    = isMothers ? `<td>${joined}</td>` : `<td>${u.facility_name||u.facilityName||"—"}</td>`;
+    const badgeCls = status==="active" ? "badge-green" : "badge-amber";
+
+    return `<tr>
+      <td><div class="user-cell">
+        <div class="user-avatar">${initials}</div>
+        <div><div class="user-name">${name}</div><div class="user-id">${u.id.slice(0,8)}...</div></div>
+      </div></td>
+      <td>${email}</td>
+      <td>${phone}</td>
+      ${extra}
+      <td><span class="badge ${badgeCls}">${status}</span></td>
+      <td><div class="action-btns">
+        <div class="btn-icon" title="Edit" onclick="openEditModal('${u.id}')"><i class="fas fa-pen"></i></div>
+        <div class="btn-icon del" title="Delete" onclick="openDeleteModal('${u.id}','${name}')"><i class="fas fa-trash"></i></div>
+      </div></td>
+    </tr>`;
+  }).join("");
+}
+
+// ── RENDER STATS ─────────────────────────────
+function renderStats(users, col){
+  const total    = users.length;
+  const active   = users.filter(u => (u.status||"active")==="active" && u.is_active!==false).length;
+  const inactive = total - active;
+  document.getElementById("stats-row").innerHTML = `
+    <div class="stat-mini"><div class="stat-mini-icon">👥</div><div><div class="stat-mini-val">${total}</div><div class="stat-mini-lbl">Total ${col}</div></div></div>
+    <div class="stat-mini"><div class="stat-mini-icon">✅</div><div><div class="stat-mini-val">${active}</div><div class="stat-mini-lbl">Active</div></div></div>
+    <div class="stat-mini"><div class="stat-mini-icon">⏸️</div><div><div class="stat-mini-val">${inactive}</div><div class="stat-mini-lbl">Inactive</div></div></div>`;
+}
+
+// ── SKELETONS ─────────────────────────────────
+function renderSkeletons(){
+  document.getElementById("table-head").innerHTML =
+    `<tr><th>Name</th><th>Email</th><th>Phone</th><th></th><th>Status</th><th>Actions</th></tr>`;
+  document.getElementById("table-body").innerHTML =
+    Array(5).fill(`<tr class="skeleton-row">
+      <td><div class="skel" style="width:140px;"></div></td>
+      <td><div class="skel" style="width:160px;"></div></td>
+      <td><div class="skel" style="width:120px;"></div></td>
+      <td><div class="skel" style="width:100px;"></div></td>
+      <td><div class="skel" style="width:60px;"></div></td>
+      <td><div class="skel" style="width:60px;"></div></td>
+    </tr>`).join("");
+  document.getElementById("stats-row").innerHTML = "";
+}
+
+// ── SEARCH FILTER ─────────────────────────────
+window.filterTable = function(){
+  const q = document.getElementById("search-input").value.toLowerCase();
+  const filtered = allUsers.filter(u =>
+    (u.fullName||u.name||"").toLowerCase().includes(q) ||
+    (u.email||"").toLowerCase().includes(q)
+  );
+  renderTable(filtered);
+};
+
+// ── ADD MODAL ─────────────────────────────────
+window.openAddModal = function(){
+  editingId = null;
+  document.getElementById("modal-title").textContent = "Add user";
+  clearModal();
+  document.getElementById("m-doctor-fields").style.display =
+    currentCollection === "doctors" ? "block" : "none";
+  openModal("userModal");
+};
+
+// ── EDIT MODAL ────────────────────────────────
+window.openEditModal = async function(id){
+  editingId = id;
+  document.getElementById("modal-title").textContent = "Edit user";
+  const dbCol = currentCollection === "mothers" ? "mothers" : "doctors";
+  try {
+    const snap = await getDoc(doc(db, dbCol, id));
+    if(!snap.exists()){ showToast("User not found","#b91c1c"); return; }
+    const d = snap.data();
+    document.getElementById("m-name").value     = d.fullName || d.name || "";
+    document.getElementById("m-email").value    = d.email    || "";
+    document.getElementById("m-phone").value    = d.phone    || d.phone_number || "";
+    document.getElementById("m-facility").value = d.facility_name || d.facilityName || "";
+    document.getElementById("m-county").value   = d.county   || "";
+    document.getElementById("m-status").value   = d.status   || "active";
+    document.getElementById("m-doctor-fields").style.display =
+      currentCollection === "doctors" ? "block" : "none";
+    openModal("userModal");
+  } catch(e){
+    showToast("Failed to load user: "+e.message,"#b91c1c");
+  }
+};
+
+// ── SAVE (CREATE or UPDATE) ───────────────────
+window.saveUser = async function(){
+  const name     = document.getElementById("m-name").value.trim();
+  const email    = document.getElementById("m-email").value.trim();
+  const phone    = document.getElementById("m-phone").value.trim();
+  const facility = document.getElementById("m-facility").value.trim();
+  const county   = document.getElementById("m-county").value.trim();
+  const status   = document.getElementById("m-status").value;
+
+  if(!name || !email || !phone){
+    showToast("Name, email and phone are required","#b91c1c"); return;
+  }
+
+  const dbCol = currentCollection === "mothers" ? "mothers" : "doctors";
+  const isMothers = currentCollection === "mothers";
+
+  const payload = isMothers
+    ? { fullName:name, email, phone, status, updatedAt:serverTimestamp() }
+    : { name, email, phone_number:phone, facility_name:facility, county, is_active:status==="active", updatedAt:serverTimestamp() };
+
+  try {
+    if(editingId){
+      // UPDATE
+      await updateDoc(doc(db, dbCol, editingId), payload);
+      showToast("User updated successfully","#1a7f4e");
+    } else {
+      // CREATE
+      payload.createdAt = serverTimestamp();
+      await addDoc(collection(db, dbCol), payload);
+      showToast("User added successfully","#1a7f4e");
+    }
+    closeModal("userModal");
+    loadUsers(currentCollection);
+  } catch(e){
+    showToast("Save failed: "+e.message,"#b91c1c");
+  }
+};
+
+// ── DELETE ────────────────────────────────────
+window.openDeleteModal = function(id, name){
+  deletingId = id;
+  document.getElementById("delete-msg").textContent =
+    `You are about to permanently delete "${name}" from Firebase. This cannot be undone.`;
+  openModal("deleteModal");
+};
+
+window.confirmDelete = async function(){
+  if(!deletingId) return;
+  const dbCol = currentCollection === "mothers" ? "mothers" : "doctors";
+  try {
+    await deleteDoc(doc(db, dbCol, deletingId));
+    showToast("User deleted","#b91c1c");
+    closeModal("deleteModal");
+    loadUsers(currentCollection);
+  } catch(e){
+    showToast("Delete failed: "+e.message,"#b91c1c");
+  }
+};
+
+// ── HELPERS ───────────────────────────────────
+function clearModal(){
+  ["m-name","m-email","m-phone","m-facility","m-county"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("m-status").value = "active";
+}
+
+function openModal(id)  { document.getElementById(id).classList.add("open"); }
+function showToast(msg, color){
+  const t = document.getElementById("toast");
+  t.textContent = (color==="#b91c1c"?"✗ ":"✓ ")+msg;
+  t.style.background = color||"#1a7f4e";
+  t.style.display = "block";
+  setTimeout(()=>{ t.style.display="none"; },3500);
+}
+
+window._openModal  = openModal;
+window._showToast  = showToast;
+</script>
+
+<script>
+function backToSelection(){
+  document.getElementById("list-view").style.display      = "none";
+  document.getElementById("selection-view").style.display = "block";
+  document.getElementById("search-input").value = "";
+}
+function closeModal(id){ document.getElementById(id).classList.remove("open"); }
+</script>
+</body>
+</html>
