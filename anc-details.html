@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANC Visit Details</title>
+    <link rel="stylesheet" href="ancdetails.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">
+            <h2>Afya Mama</h2>
+        </div>
+        <ul>
+            <li>
+                <a href="doctordashboard.html">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </a>
+            </li>
+            <li class="active">
+                <a href="patients.html">
+                    <i class="fa-solid fa-user-injured"></i> Patients
+                </a>
+            </li>
+            <li>
+                <a href="doctorprofile.html">
+                    <i class="fa-solid fa-user"></i> Profile
+                </a>
+            </li>
+            <li id="logoutBtn">
+                <a href="logout.html">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1 class="page-title">ANC Visit Details</h1>
+
+        <div class="patients-card" style="margin-bottom: 25px;">
+            <h3>Mother Information</h3>
+            <div class="info-grid">
+                <div class="info-item"><span class="info-label">Name:</span> <span id="motherName">Mary Wanjiku</span></div>
+                <div class="info-item"><span class="info-label">Age:</span> <span id="motherAge">26</span></div>
+                <div class="info-item"><span class="info-label">Phone:</span> <span id="motherPhone">+254700000000</span></div>
+                <div class="info-item"><span class="info-label">Gestation Age:</span> <span id="motherGestation">24 weeks</span></div>
+                <div class="info-item full-width" style="margin-top: 5px;"><span class="info-label">Expected Delivery Date:</span> <span id="motherEDD">12/10/2026</span></div>
+            </div>
+        </div>
+
+        <div class="patients-card" style="margin-bottom: 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0;"><i class="fas fa-notes-medical"></i> Antenatal Contacts</h3>
+                <button class="save-btn" id="addVisitBtn" style="margin: 0; padding: 10px 16px; font-size: 14px;">
+                    <i class="fas fa-plus"></i> Record New ANC Visit
+                </button>
+            </div>
+            <div class="visit-history" id="visitHistory">
+                <p style="color: var(--text-muted); font-size: 14px;">Loading visits...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="visitModal" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+        <div class="modal" style="background: white; max-width: 700px; margin: 40px auto; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: #4a0072;"><i class="fas fa-notes-medical"></i> Record ANC Visit</h3>
+                <button id="closeModal" style="background:none; border:none; font-size: 28px; cursor:pointer; color:#aaa;">&times;</button>
+            </div>
+            
+            <form id="ancForm">
+                <div style="font-weight: bold; margin-bottom: 12px; color: #6f42c1; font-size: 15px;"><i class="fas fa-calendar-check"></i> &nbsp;Visit Details</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">Contact No. <span style="color:red;">*</span></label>
+                        <select id="f_contactNo" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="">Select…</option>
+                            <option value="1st Contact">1st Contact</option>
+                            <option value="2nd Contact">2nd Contact</option>
+                            <option value="3rd Contact">3rd Contact</option>
+                            <option value="4th Contact">4th Contact</option>
+                            <option value="5th Contact">5th Contact</option>
+                            <option value="6th Contact">6th Contact</option>
+                            <option value="7th Contact">7th Contact</option>
+                            <option value="8th+ Contact">8th+ Contact</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">Date <span style="color:red;">*</span></label>
+                        <input type="date" id="f_date" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">Gestation (weeks) <span style="color:red;">*</span></label>
+                        <input type="number" id="f_gestationWeeks" placeholder="e.g. 28" min="4" max="42" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">Facility / Health Centre</label>
+                        <input type="text" id="f_facility" placeholder="e.g. Pumwani MH" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <div style="font-weight: bold; margin-bottom: 12px; color: #6f42c1; font-size: 15px;"><i class="fas fa-weight"></i> &nbsp;Maternal Observations</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">Weight (kg)</label>
+                        <input type="number" id="f_weight" step="0.1" placeholder="e.g. 62.5" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">Blood Pressure (mmHg) <span style="color:red;">*</span></label>
+                        <input type="text" id="f_bp" placeholder="e.g. 120/80" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">Haemoglobin (Hb g/dL)</label>
+                        <input type="number" id="f_hb" step="0.1" placeholder="e.g. 11.5" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">Urine (Dipstick)</label>
+                        <select id="f_urine" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="">Select…</option>
+                            <option value="Normal">Normal</option>
+                            <option value="Proteinuria (+)">Proteinuria (+)</option>
+                            <option value="Proteinuria (++)">Proteinuria (++)</option>
+                            <option value="Glucosuria">Glucosuria</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="font-weight: bold; margin-bottom: 12px; color: #6f42c1; font-size: 15px;"><i class="fas fa-baby"></i> &nbsp;Foetal Assessment</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">Fundal Height (cm)</label>
+                        <input type="number" id="f_fundalHeight" step="0.5" placeholder="e.g. 28" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">Presentation</label>
+                        <select id="f_presentation" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="">Select…</option>
+                            <option value="Cephalic">Cephalic</option>
+                            <option value="Breech">Breech</option>
+                            <option value="Transverse">Transverse</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">Foetal Heart Rate (bpm) <span style="color:red;">*</span></label>
+                        <input type="number" id="f_fhr" placeholder="e.g. 148" min="60" max="200" required style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">Foetal Movement</label>
+                        <select id="f_fetalMovement" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="">Select…</option>
+                            <option value="Present / Good">Present / Good</option>
+                            <option value="Reduced">Reduced</option>
+                            <option value="Absent">Absent</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="font-weight: bold; margin-bottom: 12px; color: #6f42c1; font-size: 15px;"><i class="fas fa-vial"></i> &nbsp;Interventions & Next Schedule</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">HIV Status</label>
+                        <select id="f_hiv" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="">Select…</option>
+                            <option value="Negative">Negative</option>
+                            <option value="Positive">Positive</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">Iron / Folic Acid</label>
+                        <select id="f_ifa" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="">Select…</option>
+                            <option value="Given">Given</option>
+                            <option value="Not given">Not given</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">TT Vaccination</label>
+                        <select id="f_tt" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="">Select…</option>
+                            <option value="Given This Visit">Given This Visit</option>
+                            <option value="Up to date">Up to date</option>
+                            <option value="Not given">Not given</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column;">
+                        <label style="margin-bottom: 5px; font-weight: 500;">Next Visit Date</label>
+                        <input type="date" id="f_nextVisit" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <div class="form-group" style="display: flex; flex-direction: column; margin-bottom: 25px;">
+                    <label style="margin-bottom: 5px; font-weight: 500;">Notes & Clinical Plan</label>
+                    <textarea id="f_notes" placeholder="Enter clinical observations, recommendations, or complaints..." style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; height: 80px; resize: vertical;"></textarea>
+                </div>
+
+                <div style="text-align: right; border-top: 1px solid #eee; padding-top: 15px;">
+                    <button type="button" id="cancelVisit" style="padding: 10px 20px; margin-right: 10px; background:#e0e0e0; border:none; border-radius:4px; cursor:pointer; font-weight:500;">Cancel</button>
+                    <button type="submit" style="padding: 10px 20px; background:#28a745; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:500;"><i class="fas fa-save"></i> Save Visit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="ancdetails.js"></script>
+</body>
+</html>

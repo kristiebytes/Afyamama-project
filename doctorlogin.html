@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Afya Mama - Doctor Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f0fa 0%, #e6d5f7 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(74, 0, 114, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        .logo h2 {
+            color: #4a0072;
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            background-color: white;
+            color: #444;
+            border: 1px solid #ccc;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .google-btn:hover {
+            background-color: #f9f9f9;
+            border-color: #4a0072;
+            box-shadow: 0 4px 12px rgba(74, 0, 114, 0.15);
+        }
+        .google-btn i {
+            font-size: 18px;
+            color: #ea4335; /* Google Red */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="logo">
+            <h2>Afya Mama</h2>
+            <div class="subtitle">Maternal Health Care Continuity Platform</div>
+        </div>
+        
+        <p style="margin-bottom: 25px; color: #555; font-size: 15px;">Welcome back, Doctor. Please sign in to access your dashboard.</p>
+        
+        <button class="google-btn" id="googleLoginBtn">
+            <i class="fa-brands fa-google"></i> Continue with Google
+        </button>
+    </div>
+
+    <script type="module" src="doctorlogin.js"></script>
+</body>
+</html>

@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AfyaMama — Maternal PNC Record</title>
+<style>
+:root {
+  --primary: #55075c;
+  --accent:  #c9227a;
+  --bg:      #fdfafb;
+  --border:  #ebd6ed;
+  --green:   #1a7f4e;
+  --red:     #b91c1c;
+  --orange:  #b45309;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Segoe UI, system-ui, sans-serif;
+  background: var(--bg);
+  color: #1a1a2e;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--primary);
+  color: white;
+  padding: 14px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.logo { font-size: 20px; font-weight: 700; }
+.logo span { color: #f5b8e8; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.switch-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ── LAYOUT ── */
+.container { max-width: 900px; margin: auto; padding: 28px 20px 60px; }
+
+/* ── MOTHER BANNER ── */
+.mother-banner {
+  background: linear-gradient(135deg, #55075c 0%, #8a0f96 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 22px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.mother-banner h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.mother-banner .meta { font-size: 13px; opacity: 0.85; display: flex; gap: 20px; flex-wrap: wrap; margin-top: 6px; }
+.visit-count {
+  background: rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 10px 22px;
+  text-align: center;
+  min-width: 100px;
+}
+.visit-count .num { font-size: 28px; font-weight: 700; }
+.visit-count .lbl { font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── CARDS ── */
+.card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--primary);
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── FIELDS ── */
+.field { margin-bottom: 14px; }
+.field label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1a1a2e;
+  background: #fdfafb;
+  font-family: inherit;
+}
+.field textarea { min-height: 72px; resize: vertical; }
+.field input:focus,
+.field select:focus,
+.field textarea:focus { outline: none; border-color: var(--accent); }
+
+.field-row { display: grid; gap: 14px; }
+.col2 { grid-template-columns: 1fr 1fr; }
+.col3 { grid-template-columns: 1fr 1fr 1fr; }
+.col4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+section-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent);
+  margin: 18px 0 10px;
+}
+
+.divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+/* ── DANGER SIGNS ── */
+.danger-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.danger-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.danger-item input[type=checkbox] { accent-color: var(--red); width: 15px; height: 15px; }
+.danger-item.flagged { background: #fee2e2; border-color: var(--red); font-weight: 600; color: var(--red); }
+
+.danger-alert {
+  display: none;
+  background: #fee2e2;
+  border: 1px solid var(--red);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--red);
+  margin-top: 10px;
+}
+
+/* ── EPDS SCREENING ── */
+.epds-intro {
+  background: #fdf5f9;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #4b5563;
+  margin-bottom: 16px;
+}
+.epds-question { margin-bottom: 16px; }
+.epds-question .q-text { font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #1a1a2e; }
+.epds-options { display: flex; flex-direction: column; gap: 6px; }
+.epds-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #374151;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: #fdfafb;
+}
+.epds-options label:hover { border-color: var(--accent); background: #fdf5f9; }
+.epds-options input[type=radio] { accent-color: var(--accent); width: 14px; height: 14px; }
+
+.epds-score-box {
+  display: none;
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 14px;
+}
+.score-low  { background: #f0fdf4; color: var(--green); border: 1px solid #bbf7d0; }
+.score-mid  { background: #fffbeb; color: var(--orange); border: 1px solid #fde68a; }
+.score-high { background: #fee2e2; color: var(--red);    border: 1px solid #fecaca; }
+
+/* ── VISIT HISTORY ── */
+.visit-log { max-height: 280px; overflow-y: auto; }
+.visit-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.visit-item:last-child { border-bottom: none; }
+.visit-week { font-weight: 700; color: var(--primary); margin-bottom: 3px; }
+.visit-detail { color: #4b5563; }
+.empty-state { text-align: center; color: #9ca3af; padding: 24px; font-size: 13px; }
+
+/* ── BUTTONS ── */
+.btn-save {
+  width: 100%;
+  padding: 14px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+}
+.btn-save:hover { background: #6e0a77; }
+
+.btn-calc {
+  padding: 10px 20px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+/* ── TOAST ── */
+.toast {
+  display: none;
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: var(--green);
+  color: white;
+  padding: 14px 22px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 999;
+}
+
+@media(max-width:640px) {
+  .col2,.col3,.col4 { grid-template-columns: 1fr; }
+  .danger-grid { grid-template-columns: 1fr; }
+  .mother-banner { flex-direction: column; text-align: center; }
+  .mother-banner .meta { justify-content: center; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">Afya<span>Mama</span></div>
+  <div class="topbar-right">
+  <span id="doctorInfo" style="font-size:13px;opacity:0.85;">
+  Loading doctor...
+</span>
+    <button class="switch-btn" onclick="switchToChild()">View Child Record →</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- MOTHER BANNER -->
+  <div class="mother-banner">
+  <div>
+    <h2 id="motherName">Loading...</h2>
+
+    <div class="meta">
+      <span id="motherId">ID: ...</span>
+      <span id="dobSpan">DOB: ...</span>
+      <span id="deliverySpan">Delivered: ...</span>
+      <span id="gravidaSpan">G2P2</span>
+    </div>
+  </div>
+</div>
+    <div class="visit-count">
+      <div class="num" id="visitCountNum">4</div>
+      <div class="lbl">PNC visits</div>
+      <div style="font-size:12px;margin-top:4px;opacity:0.9;" id="weeksPostpartum">— wks postpartum</div>
+    </div>
+  </div>
+
+  <!-- VITAL SIGNS -->
+  <div class="card">
+    <div class="card-title">Vital signs — today's visit</div>
+    <div class="field">
+      <label>Date of visit</label>
+      <input type="date" id="visitDate">
+    </div>
+    <div class="field-row col4">
+      <div class="field">
+        <label>BP (mmHg)</label>
+        <input type="text" id="bp" placeholder="120/80">
+      </div>
+      <div class="field">
+        <label>Pulse (bpm)</label>
+        <input type="number" id="pulse" placeholder="72">
+      </div>
+      <div class="field">
+        <label>Temp (°C)</label>
+        <input type="number" id="temp" placeholder="36.6" step="0.1">
+      </div>
+      <div class="field">
+        <label>Weight (kg)</label>
+        <input type="number" id="weight" placeholder="62" step="0.1">
+      </div>
+    </div>
+  </div>
+
+  <!-- DANGER SIGNS -->
+  <div class="card">
+    <div class="card-title">Danger signs check</div>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:14px;">Tick any danger signs observed or reported by the mother.</p>
+    <div class="danger-grid" id="dangerGrid">
+      <label class="danger-item"><input type="checkbox" class="dangerCheck"> Heavy bleeding (soaking >1 pad/hr)</label>
+      <label class="danger-item"><input type="checkbox" class="dangerCheck"> Severe headache or blurred vision</label>
+      <label class="danger-item"><input type="checkbox" class="dangerCheck"> High fever (>38°C)</label>
+      <label class="danger-item"><input type="checkbox" class="dangerCheck"> Foul-smelling vaginal discharge</label>
+      <label class="danger-item"><input type="checkbox" class="dangerCheck"> Swollen, red or painful leg</label>
+      <label class="danger-item"><input type="checkbox" class="dangerCheck"> Difficulty breathing</label>
+      <label class="danger-item"><input type="checkbox" class="dangerCheck"> Chest pain</label>
+      <label class="danger-item"><input type="checkbox" class="dangerCheck"> Wound separation or pus</label>
+    </div>
+    <div class="danger-alert" id="dangerAlert">
+      ⚠ One or more danger signs flagged. Immediate clinical assessment required. Document and escalate.
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Danger sign notes</label>
+      <textarea id="dangerNotes" placeholder="Describe any flagged signs in detail..."></textarea>
+    </div>
+  </div>
+
+  <!-- RECOVERY -->
+  <div class="card">
+    <div class="card-title">Recovery & wound assessment</div>
+    <div class="field-row col2">
+      <div class="field">
+        <label>Wound status</label>
+        <select id="woundStatus">
+          <option value="">— select —</option>
+          <option>Healing well</option>
+          <option>Requires observation</option>
+          <option>Signs of infection</option>
+          <option>Not applicable (normal delivery)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Lochia character</label>
+        <select id="lochia">
+          <option value="">— select —</option>
+          <option>Rubra (red) — normal</option>
+          <option>Serosa (pink/brown) — normal</option>
+          <option>Alba (white/yellow) — normal</option>
+          <option>Abnormal — foul smell</option>
+          <option>Abnormal — heavy/clots</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Uterine involution notes</label>
+      <textarea id="involution" placeholder="Describe uterine height and tone..."></textarea>
+    </div>
+    <div class="field">
+      <label>Breastfeeding status</label>
+      <select id="breastfeedingStatus">
+        <option value="">— select —</option>
+        <option>Exclusive breastfeeding</option>
+        <option>Mixed feeding</option>
+        <option>Formula only</option>
+        <option>Difficulties reported</option>
+        <option>Not breastfeeding</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Breastfeeding notes</label>
+      <textarea id="breastfeedingNotes" placeholder="Latch, engorgement, nipple concerns..."></textarea>
+    </div>
+  </div>
+
+  <!-- EPDS MENTAL WELLNESS -->
+  <div class="card">
+    <div class="card-title">Postpartum mental wellness — EPDS screening</div>
+    <div class="epds-intro">
+      Edinburgh Postnatal Depression Scale (EPDS) — 3-question short form. Ask the mother to answer based on how she has felt in the <strong>past 7 days</strong>.
+    </div>
+
+    <div class="epds-question">
+      <div class="q-text">1. I have been able to laugh and see the funny side of things.</div>
+      <div class="epds-options">
+        <label><input type="radio" name="epds1" value="0"> As much as I always could</label>
+        <label><input type="radio" name="epds1" value="1"> Not quite so much now</label>
+        <label><input type="radio" name="epds1" value="2"> Definitely not so much now</label>
+        <label><input type="radio" name="epds1" value="3"> Not at all</label>
+      </div>
+    </div>
+
+    <div class="epds-question">
+      <div class="q-text">2. I have felt scared or panicky for no very good reason.</div>
+      <div class="epds-options">
+        <label><input type="radio" name="epds2" value="0"> No, not at all</label>
+        <label><input type="radio" name="epds2" value="1"> Hardly ever</label>
+        <label><input type="radio" name="epds2" value="2"> Yes, sometimes</label>
+        <label><input type="radio" name="epds2" value="3"> Yes, quite a lot</label>
+      </div>
+    </div>
+
+    <div class="epds-question">
+      <div class="q-text">3. The thought of harming myself has occurred to me.</div>
+      <div class="epds-options">
+        <label><input type="radio" name="epds3" value="0"> Never</label>
+        <label><input type="radio" name="epds3" value="1"> Hardly ever</label>
+        <label><input type="radio" name="epds3" value="2"> Sometimes</label>
+        <label><input type="radio" name="epds3" value="3"> Yes, quite often</label>
+      </div>
+    </div>
+
+    <button class="btn-calc" onclick="calculateEPDS()">Calculate wellness score</button>
+    <div class="epds-score-box" id="epdsResult"></div>
+
+    <div class="field" style="margin-top:16px;">
+      <label>Counselling notes</label>
+      <textarea id="counsellingNotes" placeholder="Support offered, referrals made, follow-up plan..."></textarea>
+    </div>
+  </div>
+
+  <!-- FAMILY PLANNING & HIV -->
+  <div class="card">
+    <div class="card-title">Family planning & PMTCT</div>
+    <div class="field-row col2">
+      <div class="field">
+        <label>Family planning method chosen</label>
+        <select id="fpMethod">
+          <option value="">— select —</option>
+          <option>Progestogen-only pill (POP/Minipill)</option>
+          <option>Injectable (Depo-Provera)</option>
+          <option>Implant (Implanon/Jadelle)</option>
+          <option>IUCD</option>
+          <option>Male condom</option>
+          <option>Natural family planning</option>
+          <option>Sterilisation</option>
+          <option>None chosen</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>HIV / PMTCT status</label>
+        <select id="hivStatus">
+          <option value="">— select —</option>
+          <option>Negative — tested this visit</option>
+          <option>Positive — on ARVs, adherent</option>
+          <option>Positive — adherence concerns</option>
+          <option>Positive — infant prophylaxis given</option>
+          <option>Declined testing</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>FP / PMTCT session notes</label>
+      <textarea id="fpNotes" placeholder="Counselling provided, method given, follow-up..."></textarea>
+    </div>
+  </div>
+
+  <!-- NEXT APPOINTMENT -->
+  <div class="card">
+    <div class="card-title">Next appointment</div>
+    <div class="field-row col3">
+      <div class="field">
+        <label>Appointment type</label>
+        <select id="nextType">
+          <option value="">— select —</option>
+          <option>PNC follow-up</option>
+          <option>Family planning review</option>
+          <option>Mental health follow-up</option>
+          <option>General clinic</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Scheduled date</label>
+        <input type="date" id="nextDate">
+      </div>
+      <div class="field">
+        <label>Notes for mother</label>
+        <input type="text" id="nextNotes" placeholder="e.g. Bring referral letter">
+      </div>
+    </div>
+  </div>
+
+  <!-- CLINICAL NOTES -->
+  <div class="card">
+    <div class="card-title">General clinical notes</div>
+    <div class="field">
+      <textarea id="clinicalNotes" placeholder="Overall assessment, referrals, management plan..." style="min-height:100px;"></textarea>
+    </div>
+    <button class="btn-save" onclick="saveRecord()">Save visit record</button>
+  </div>
+
+  <!-- VISIT HISTORY -->
+  <div class="card">
+    <div class="card-title">Visit history</div>
+    <div class="visit-log" id="visitLog"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">✓ PNC record saved successfully</div>
+
+<script>
+// ─── MOTHER DATA ──────────────────────────────
+let mother = null;
+
+async function fetchMother() {
+  const id = sessionStorage.getItem("selectedMother");
+
+  if (!id) {
+    alert("No mother selected. Redirecting to dashboard.");
+    window.location.href = "/dashboard.html";
+    return;
+  }
+
+  const res = await fetch(`/api/mothers/${id}`);
+
+  if (!res.ok) {
+    alert("Mother record not found.");
+    return;
+  }
+
+  mother = await res.json();
+
+  mother.dob = new Date(mother.dob);
+  mother.deliveryDate = new Date(mother.delivery_date);
+
+  init();
+}
+// Doctor Data
+async function loadDoctor() {
+  try {
+    const res = await fetch("/api/auth/me");
+
+    if (!res.ok) throw new Error();
+
+    const doctor = await res.json();
+
+    document.getElementById("doctorInfo").textContent =
+      `${doctor.full_name} · ${doctor.facility}`;
+
+  } catch (e) {
+    document.getElementById("doctorInfo").textContent =
+      "Doctor unavailable";
+  }
+}
+
+// ─── HELPERS ──────────────────────────────────
+function weeksPostpartum(){
+  return Math.floor((new Date() - mother.deliveryDate) / (1000*60*60*24*7));
+}
+
+function formatDate(d){
+  return new Date(d).toLocaleDateString("en-KE",{ day:"numeric", month:"short", year:"numeric" });
+}
+let visitsDB = [];
+// ─── INIT ─────────────────────────────────────
+function init(){
+  document.getElementById("motherName").textContent = mother.full_name;
+  document.getElementById("dobSpan").textContent       = "DOB: " + formatDate(mother.dob);
+  document.getElementById("deliverySpan").textContent  = "Delivered: " + formatDate(mother.deliveryDate);
+  document.getElementById("gravidaSpan").textContent = "G" + mother.gravida + "P" + mother.parity;
+  document.getElementById("visitCountNum").textContent = visitsDB.length;
+  document.getElementById("weeksPostpartum").textContent = weeksPostpartum() + " wks postpartum";
+
+  // Set today's date
+  document.getElementById("visitDate").value = new Date().toISOString().split("T")[0];
+
+  // Danger sign listeners
+  document.querySelectorAll(".dangerCheck").forEach(cb => {
+    cb.addEventListener("change", checkDangerSigns);
+  });
+
+  renderVisitLog();
+}
+
+// ─── DANGER SIGNS ─────────────────────────────
+function checkDangerSigns(){
+  let any = [...document.querySelectorAll(".dangerCheck")].some(c => c.checked);
+  document.getElementById("dangerAlert").style.display = any ? "block" : "none";
+  document.querySelectorAll(".danger-item").forEach(item => {
+    item.classList.toggle("flagged", item.querySelector("input").checked);
+  });
+}
+
+// ─── EPDS ─────────────────────────────────────
+function calculateEPDS(){
+  let q1 = document.querySelector('input[name="epds1"]:checked');
+  let q2 = document.querySelector('input[name="epds2"]:checked');
+  let q3 = document.querySelector('input[name="epds3"]:checked');
+
+  if(!q1 || !q2 || !q3){
+    alert("Please answer all three screening questions before calculating.");
+    return;
+  }
+
+  let score = parseInt(q1.value) + parseInt(q2.value) + parseInt(q3.value);
+  let box = document.getElementById("epdsResult");
+  box.style.display = "block";
+  box.className = "epds-score-box";
+
+  if(score <= 2){
+    box.classList.add("score-low");
+    box.innerHTML = `Score: ${score}/9 — Low risk. Continue routine support and monitoring.`;
+  } else if(score <= 5){
+    box.classList.add("score-mid");
+    box.innerHTML = `Score: ${score}/9 — Moderate concern. Provide counselling and schedule follow-up within 2 weeks.`;
+  } else {
+    box.classList.add("score-high");
+    box.innerHTML = `Score: ${score}/9 — High risk. Immediate counselling required. Consider referral to mental health support.`;
+  }
+}
+
+// ─── RENDER VISIT LOG ─────────────────────────
+function renderVisitLog(){
+  let log = document.getElementById("visitLog");
+  let sorted = [...visitsDB].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  if(!sorted.length){
+    log.innerHTML = `<div class="empty-state">No visits recorded yet.</div>`;
+    return;
+  }
+
+  log.innerHTML = sorted.map(v => `
+    <div class="visit-item">
+      <div class="visit-week">${v.label} &nbsp;·&nbsp; ${formatDate(v.date)}</div>
+      <div class="visit-detail">BP: ${v.bp||"—"} &nbsp;|&nbsp; Pulse: ${v.pulse||"—"} bpm &nbsp;|&nbsp; Temp: ${v.temp||"—"}°C</div>
+      <div class="visit-detail" style="margin-top:3px;">${v.notes||""}</div>
+      ${v.epdsScore !== undefined ? `<div class="visit-detail" style="margin-top:3px;color:#6b7280;">Wellness score: ${v.epdsScore}/9 (${v.epdsLevel})</div>` : ""}
+      ${v.fpMethod ? `<div class="visit-detail" style="margin-top:3px;color:var(--primary);">FP: ${v.fpMethod}</div>` : ""}
+    </div>`
+  ).join("");
+}
+
+// ─── SAVE RECORD ──────────────────────────────
+function saveRecord(){
+  let date  = document.getElementById("visitDate").value;
+  let bp    = document.getElementById("bp").value.trim();
+  let notes = document.getElementById("clinicalNotes").value.trim();
+
+  let q1 = document.querySelector('input[name="epds1"]:checked');
+  let q2 = document.querySelector('input[name="epds2"]:checked');
+  let q3 = document.querySelector('input[name="epds3"]:checked');
+
+  if(!date && !bp && !notes){
+    alert("Please enter at least a visit date, blood pressure, or clinical notes before saving.");
+    return;
+  }
+
+  let epdsScore = (q1 && q2 && q3)
+    ? parseInt(q1.value) + parseInt(q2.value) + parseInt(q3.value)
+    : null;
+
+  let epdsLevel = epdsScore === null ? "Not completed"
+    : epdsScore <= 2 ? "Low"
+    : epdsScore <= 5 ? "Moderate"
+    : "High";
+
+  let dangerFlags = [...document.querySelectorAll(".dangerCheck:checked")]
+    .map(c => c.parentElement.textContent.trim());
+
+  visitsDB.push({
+    date: date || new Date().toISOString().split("T")[0],
+    label: "PNC visit (week " + weeksPostpartum() + ")",
+    bp:    document.getElementById("bp").value,
+    pulse: document.getElementById("pulse").value,
+    temp:  document.getElementById("temp").value,
+    weight: document.getElementById("weight").value,
+    woundStatus:       document.getElementById("woundStatus").value,
+    lochia:            document.getElementById("lochia").value,
+    breastfeeding:     document.getElementById("breastfeedingStatus").value,
+    breastfeedingNotes:document.getElementById("breastfeedingNotes").value,
+    epdsScore, epdsLevel,
+    dangerSigns: dangerFlags,
+    dangerNotes: document.getElementById("dangerNotes").value,
+    fpMethod:    document.getElementById("fpMethod").value,
+    fpNotes:     document.getElementById("fpNotes").value,
+    hivStatus:   document.getElementById("hivStatus").value,
+    counselling: document.getElementById("counsellingNotes").value,
+    nextAppt: {
+      type:  document.getElementById("nextType").value,
+      date:  document.getElementById("nextDate").value,
+      notes: document.getElementById("nextNotes").value
+    },
+    notes
+  });
+
+  // Clear fields
+  ["bp","pulse","temp","weight","involution","breastfeedingNotes",
+   "dangerNotes","counsellingNotes","fpNotes","clinicalNotes","nextNotes"]
+    .forEach(id => { document.getElementById(id).value = ""; });
+  document.querySelectorAll(".dangerCheck").forEach(c => { c.checked = false; });
+  document.querySelectorAll('input[type=radio]').forEach(r => { r.checked = false; });
+  document.getElementById("epdsResult").style.display = "none";
+  document.getElementById("dangerAlert").style.display = "none";
+  document.querySelectorAll(".danger-item").forEach(i => i.classList.remove("flagged"));
+  ["woundStatus","lochia","breastfeedingStatus","fpMethod","hivStatus","nextType"]
+    .forEach(id => { document.getElementById(id).value = ""; });
+  document.getElementById("nextDate").value = "";
+
+  document.getElementById("visitCountNum").textContent = visitsDB.length;
+  renderVisitLog();
+  showToast();
+}
+
+function showToast(){
+  let t = document.getElementById("toast");
+  t.style.display = "block";
+  setTimeout(() => { t.style.display = "none"; }, 3000);
+}
+
+function switchToChild(){
+  if (!mother?.child_id) {
+    alert("No linked child record found.");
+    return;
+  }
+
+  window.location.href = `/child.html?id=${mother.child_id}`;
+}
+
+fetchMother();
+loadDoctor();
+</script>
+</body>
+</html>
