@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AfyaMama — Child Record</title>
+
 <style>
 :root {
   --primary: #55075c;
@@ -246,7 +247,7 @@ section-label {
 
 <div class="topbar">
   <div class="logo">Afya<span>Mama</span></div>
-  <div class="provider">Dr. Akinyi Omondi · Kenyatta National Hospital</div>
+  <div class="provider" id="providerInfo"></div>
 </div>
 
 <div class="container">
@@ -254,12 +255,13 @@ section-label {
   <!-- CHILD BANNER -->
   <div class="child-banner">
     <div>
-      <h2 id="childName">Mary Wanjiku</h2>
+      <h2 id="childName"></h2>
+
       <div class="meta">
-        <span>ID: CH004</span>
-        <span id="dobDisplay">DOB: —</span>
-        <span id="sexDisplay">Sex: Female</span>
-        <span id="birthWeightDisplay">Birth weight: 3.2 kg</span>
+        <span id="childIdDisplay"></span>
+        <span id="dobDisplay"></span>
+        <span id="sexDisplay"></span>
+        <span id="birthWeightDisplay"></span>
       </div>
     </div>
     <div class="age-badge">
@@ -268,6 +270,7 @@ section-label {
       <div style="font-size:12px;margin-top:4px;opacity:0.9;" id="ageMonthsDisplay">— months</div>
     </div>
   </div>
+</div>
 
   <div class="grid">
 
@@ -392,14 +395,45 @@ section-label {
 
 <script>
 // ─── CHILD DATA ───────────────────────────────
-const child = {
-  id: "CH004",
-  name: "Mary Wanjiku",
-  sex: "Female",
-  dob: new Date("2025-12-01"),
-  birthWeight: 3.2
-};
+let child = null;
+let visitsDB = [];
 
+// Fetch Child
+async function fetchChild() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  if (!id) {
+    alert("No child selected");
+    return;
+  }
+
+  const res = await fetch(`/api/children/${id}`);
+  child = await res.json();
+
+  child.dob = new Date(child.dob);
+
+  await fetchVisits(id);
+
+  init();
+}
+async function fetchVisits(childId) {
+  const res = await fetch(`/api/children/${childId}/visits`);
+  visitsDB = await res.json();
+}
+
+// Get Doctor
+async function loadDoctor() {
+  const res = await fetch("/api/auth/me");
+  const doc = await res.json();
+
+  document.getElementById("providerInfo").textContent =
+    `${doc.full_name} · ${doc.facility}`;
+}
+// normalizer for the vaccine names
+function normalize(name){
+  return name.toLowerCase().replace(/\s+/g,'').replace(/[()\-]/g,'');
+}
 // ─── IMMUNIZATION SCHEDULE (Kenya EPI — Full) ─
 const schedule = [
   { name:"BCG", doses:[
@@ -441,50 +475,6 @@ const schedule = [
   ]}
 ];
 
-// ─── VISIT DATABASE ───────────────────────────
-let visitsDB = [
-  {
-    week:0, date:"2025-12-01",
-    immunizations:[
-      { vaccine:"BCG",          dose:"Birth" },
-      { vaccine:"OPV (Bivalent)", dose:"Birth" }
-    ],
-    growth:{ weight:3.2, height:50, headCirc:34 },
-    notes:"Birth visit. Baby alert and active."
-  },
-  {
-    week:6, date:"2026-01-12",
-    immunizations:[
-      { vaccine:"OPV (Bivalent)",      dose:"6 Weeks" },
-      { vaccine:"DPT-HepB-Hib",        dose:"6 Weeks" },
-      { vaccine:"PCV (Pneumococcal)",  dose:"6 Weeks" },
-      { vaccine:"Rotavirus",           dose:"6 Weeks" }
-    ],
-    growth:{ weight:4.8, height:56, headCirc:37 },
-    notes:"6-week visit. Weight gain satisfactory."
-  },
-  {
-    week:10, date:"2026-02-09",
-    immunizations:[
-      { vaccine:"OPV (Bivalent)",      dose:"10 Weeks" },
-      { vaccine:"DPT-HepB-Hib",        dose:"10 Weeks" },
-      { vaccine:"PCV (Pneumococcal)",  dose:"10 Weeks" },
-      { vaccine:"Rotavirus",           dose:"10 Weeks" }
-    ],
-    growth:{ weight:5.6, height:59, headCirc:39 },
-    notes:"10-week visit. Child thriving."
-  },
-  {
-    week:14, date:"2026-03-09",
-    immunizations:[
-      { vaccine:"OPV (Bivalent)",      dose:"14 Weeks" },
-      { vaccine:"DPT-HepB-Hib",        dose:"14 Weeks" },
-      { vaccine:"PCV (Pneumococcal)",  dose:"14 Weeks" }
-    ],
-    growth:{ weight:6.2, height:62, headCirc:40 },
-    notes:"14-week visit. Rotavirus dose 2 missed — scheduled."
-  }
-];
 
 // ─── HELPERS ──────────────────────────────────
 function getAgeWeeks(){
@@ -503,8 +493,9 @@ function getImmunizationHistory(){
   let h = {};
   visitsDB.forEach(v => {
     (v.immunizations||[]).forEach(i => {
-      if(!h[i.vaccine]) h[i.vaccine] = [];
-      h[i.vaccine].push(i);
+      let key = normalize(i.vaccine);
+      if(!h[key]) h[key] = [];
+      h[key].push(i);
     });
   });
   return h;
@@ -517,7 +508,7 @@ function buildView(){
   let result = [];
 
   schedule.forEach(vax => {
-    let given = (history[vax.name]||[]).map(h => h.dose);
+    let given = (history[normalize(vax.name)]||[]).map(h => h.dose);
     vax.doses.forEach(dose => {
       let done      = given.includes(dose.label);
       let dueToday  = dose.ageWeeks === age;
@@ -563,7 +554,7 @@ function renderImmunizations(){
 // ─── RENDER VISIT HISTORY ─────────────────────
 function renderVisitLog(){
   let log = document.getElementById("visitLog");
-  let sorted = [...visitsDB].sort((a,b) => b.week - a.week);
+  let sorted = [...visitsDB].sort((a,b) => (b.week||0) - (a.week||0));
 
   if(!sorted.length){
     log.innerHTML = `<div class="empty-state">No visits recorded yet.</div>`;
@@ -633,6 +624,13 @@ function saveVisit(){
 
   visitsDB.push(record);
 
+//  persist to backend
+fetch(`/api/children/${child.id}/visits`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(record)
+});
+
   // Clear form
   ["note","drug","dose","duration","generalExam","systemExam","feedingNotes","weight","height","headCirc","nextApptNotes"].forEach(id => {
     document.getElementById(id).value = "";
@@ -662,12 +660,14 @@ function init(){
   document.getElementById("sexDisplay").textContent       = "Sex: " + child.sex;
   document.getElementById("birthWeightDisplay").textContent = "Birth weight: " + child.birthWeight + " kg";
   document.getElementById("childName").textContent        = child.name;
+  document.getElementById("childIdDisplay").textContent = "ID: " + child.id;
 
   renderImmunizations();
   renderVisitLog();
 }
 
-init();
+fetchChild();
+loadDoctor();
 </script>
 </body>
 </html>
