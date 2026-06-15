@@ -119,18 +119,38 @@ async function loadTodayAppointments() {
     }
 }
 
+/* ── 3. DYNAMIC ROUTING MAPPER HELPER ── */
+function getTargetRoute(appointmentType, motherId) {
+    const type = appointmentType.toUpperCase().trim();
+    
+    if (type.includes("CHILD PNC") || type.includes("CHILD_PNC")) {
+        return { page: "child_view.html", urlParams: `motherId=${motherId}` };
+    } else if (type.includes("MOTHER PNC") || type.includes("MOTHER_PNC")) {
+        return { page: "mother_view.html", urlParams: `id=${motherId}` };
+    } else {
+        // Fallback default for ANC visits
+        return { page: "anc-details.html", urlParams: `id=${motherId}` };
+    }
+}
+
+/* ── 4. RENDER CONTEXT PATIENT ROW VIA CORE ENGINE ── */
 function renderMotherRow(mother) {
     const motherTable = document.getElementById("patientTable");
+    if (!motherTable) return;
+
+    // Get dynamic landing configurations
+    const route = getTargetRoute(mother.appointmentType, mother.id);
+
     motherTable.innerHTML += `
         <tr>
             <td>
-                <a class="patient-link" href="anc-details.html?id=${mother.id}">
+                <a class="patient-link" href="${route.page}?${route.urlParams}">
                     ${mother.name}
                 </a>
             </td>
             <td>${mother.appointmentType}</td>
             <td>
-                <button class="open-btn" onclick="openMother('${mother.id}')">
+                <button class="open-btn" onclick="openMother('${mother.id}', '${mother.appointmentType}')">
                     Open
                 </button>
             </td>
@@ -138,7 +158,7 @@ function renderMotherRow(mother) {
     `;
 }
 
-/* ── 3. SEARCH OPERATIONS ACROSS ACTIVE LOCAL CONTEXT DATA ── */
+/* ── 5. SEARCH OPERATIONS ACROSS ACTIVE LOCAL CONTEXT DATA ── */
 const searchInput = document.getElementById("searchInput");
 if (searchInput) {
     searchInput.addEventListener("keyup", () => {
@@ -166,9 +186,11 @@ function displayResults(results) {
     }
 
     results.forEach(mother => {
+        const route = getTargetRoute(mother.appointmentType, mother.id);
+        
         container.innerHTML += `
             <div class="search-result">
-                <a href="anc-details.html?id=${mother.id}">
+                <a href="${route.page}?${route.urlParams}">
                     ${mother.name}
                 </a>
             </div>
@@ -176,7 +198,7 @@ function displayResults(results) {
     });
 }
 
-/* ── 4. LOGOUT OPERATION IMPLEMENTATION ── */
+/* ── 6. LOGOUT OPERATION IMPLEMENTATION ── */
 document.getElementById("logoutBtn").addEventListener("click", (e) => {
     e.preventDefault();
     signOut(auth).then(() => {
@@ -184,7 +206,8 @@ document.getElementById("logoutBtn").addEventListener("click", (e) => {
     }).catch(err => console.error("Logout execution error:", err));
 });
 
-/* ── 5. EXPOSE WINDOW-LINK NAVIGATION HELPER FUNCTIONS ── */
-window.openMother = function(id) {
-    window.location.href = `anc-details.html?id=${id}`;
+/* ── 7. EXPOSE DYNAMIC WINDOW-LINK NAVIGATION HELPER FUNCTIONS ── */
+window.openMother = function(id, appointmentType) {
+    const route = getTargetRoute(appointmentType, id);
+    window.location.href = `${route.page}?${route.urlParams}`;
 };
