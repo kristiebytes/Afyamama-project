@@ -20,9 +20,10 @@ const db = getFirestore(app);
 // Global list array to hold active parsed records for local searching functions
 let todayMothersList = [];
 
-/* ── 1. AUTH STATE GATEWAY CHECK ── */
+/* ── 1. AUTH STATE GATEWAY CHECK (CRASH-PROOFED) ── */
 onAuthStateChanged(auth, async (user) => {
     if (user) { 
+        console.log("Firebase Auth detected authenticated user email:", user.email);
         try {
             const doctorsRef = collection(db, "doctors");
             const q = query(doctorsRef, where("email", "==", user.email));
@@ -31,21 +32,26 @@ onAuthStateChanged(auth, async (user) => {
             if (!querySnapshot.empty) {
                 const doctorDoc = querySnapshot.docs[0];
                 const doctorData = doctorDoc.data();
+                console.log("Matched Doctor Firestore Data Payload:", doctorData);
                 
                 const welcomeElement = document.getElementById("doctorWelcome");
                 if (welcomeElement) {
-                    welcomeElement.innerText = `Welcome, Dr. ${doctorData.firstName}`;
+                    // Fallback pattern checks for camelCase, snake_case, or general full names to avoid parsing crashes
+                    const doctorIdentifierName = doctorData.firstName || doctorData.first_name || doctorData.full_name || "Doctor";
+                    welcomeElement.innerText = `Welcome, Dr. ${doctorIdentifierName}`;
                 }
 
                 // Credentials confirmed! Fetch live maternal schedule from Firestore
                 loadTodayAppointments();
             } else {
+                console.warn(`Access Denied: No matching entry found in 'doctors' collection for email: ${user.email}`);
                 window.location.href = "doctorlogin.html";
             }
         } catch (error) {
-            console.error("Authentication validation failed:", error);
+            console.error("Critical Failure executing post-auth validation pipeline:", error);
         }
     } else {
+        console.log("No active authentication session discovered. Redirecting to login gateway...");
         window.location.href = "doctorlogin.html";
     }
 });
@@ -123,12 +129,12 @@ async function loadTodayAppointments() {
 function getTargetRoute(appointmentType, motherId) {
     const type = appointmentType.toUpperCase().trim();
     
-    if (type.includes("CHILD PNC") || type.includes("CHILD_PNC")) {
+    if (type.includes("CHILD PNC") || type.includes("CHILD_PNC") || type.includes("CHILD")) {
         return { page: "child_view.html", urlParams: `motherId=${motherId}` };
     } else if (type.includes("MOTHER PNC") || type.includes("MOTHER_PNC")) {
         return { page: "mother_view.html", urlParams: `id=${motherId}` };
     } else {
-        // Fallback default for ANC visits
+        // Fallback default routing map for standard ANC visits
         return { page: "anc-details.html", urlParams: `id=${motherId}` };
     }
 }
@@ -138,7 +144,7 @@ function renderMotherRow(mother) {
     const motherTable = document.getElementById("patientTable");
     if (!motherTable) return;
 
-    // Get dynamic landing configurations
+    // Get dynamic landing configurations based on exact clinical category
     const route = getTargetRoute(mother.appointmentType, mother.id);
 
     motherTable.innerHTML += `
